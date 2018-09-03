@@ -44,17 +44,17 @@ public class MarketAsset {
         return this.return_sigma;
     }
 
-    public static ArrayList<MarketAsset> makeMarketAssets(Random rand){
+    public static ArrayList<MarketAsset> MakeMarketAssets(Random rand){
         ArrayList<MarketAsset> marketAssets = new ArrayList<MarketAsset>();
         for(int j=0;j < Constants.VaR.M; j++){
             MarketAsset marketAsset = new MarketAsset();
-            setupMarketAsset(marketAsset, j, rand);
+            SetupMarketAsset(marketAsset, j, rand);
             marketAssets.add(marketAsset);
         }
         return marketAssets;
     }
 
-    public static void setupMarketAsset(MarketAsset marketAsset, Integer number, Random rand){
+    public static void SetupMarketAsset(MarketAsset marketAsset, Integer number, Random rand){
             ArrayList<Double> price = new ArrayList<Double>();			//過去(m+1)日間における理論価格（＝市場価格）
             double p = 100.0;
             price.add(p);
@@ -159,7 +159,7 @@ public class MarketAsset {
 
     }
 
-    public static void update_price(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
+    public static void UpdatePrice(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
         update_fundamental_price(banks, markets, rand);
         update_market_price(banks, markets);
     }

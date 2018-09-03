@@ -1,12 +1,7 @@
 package ChainBankruptcy;
-import ChainBankruptcy.Constants;
 
-import javax.swing.plaf.synth.SynthLookAndFeel;
-import java.net.IDN;
 import java.util.Random;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Main {
     public static void main(String[] args){
@@ -18,24 +13,24 @@ public class Main {
 
 
 
-            ArrayList<Bank> banks = Bank.Initializing_Interbank_Network(rand);
+            ArrayList<Bank> banks = Bank.InitializeInterbankNetwork(rand);
 
-            ArrayList<MarketAsset> markets = MarketAsset.makeMarketAssets(rand);
+            ArrayList<MarketAsset> markets = MarketAsset.MakeMarketAssets(rand);
 
-            Bank.Initializing_BalanceSheet(banks, sum_marketable_assets, markets, rand);
+            Bank.InitializeBalanceSheet(banks, sum_marketable_assets, markets, rand);
 
             for(int t = 0; t <= Constants.time; t++){
                 if(t == Constants.rupttime){
                     int ID = Constants.Args.start_index;
-                    Bank.go_bankrupt(banks, ID);
+                    Bank.GoBankrupt(banks, ID);
                 }
-                Bank.buy_or_sell_marketable_assets(banks, markets, rand);
+                Bank.BuyOrSellMarketableAssets(banks, markets, rand);
 
-                MarketAsset.update_price(banks, markets, rand);
+                MarketAsset.UpdatePrice(banks, markets, rand);
 
-                Bank.update_BalanceSheet(banks, markets);
+                Bank.UpdateBalanceSheet(banks, markets);
 
-                Bank.go_eachBankrupt(banks, markets);
+                Bank.GoEachBankrupt(banks, markets);
             }
             int number_bunkrupt = Bank.countrupt(banks);
             numbers_rupt.add(number_bunkrupt);

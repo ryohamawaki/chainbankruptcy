@@ -1,6 +1,5 @@
 package ChainBankruptcy;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Bank {
@@ -41,22 +40,22 @@ public class Bank {
         status = bankstatus;
     }
 
-    public static ArrayList<Bank> Initializing_Interbank_Network(Random rand){
+    public static ArrayList<Bank> InitializeInterbankNetwork(Random rand){
         ArrayList<Bank> banks = new ArrayList<Bank>();
-        make_Banks(banks);
-        make_Network(banks, Constants.Args.kind_of_network, rand);
-        make_Vector(banks, rand);
-        make_NeighborIn(banks);
+        MakeBanks(banks);
+        MakeNetwork(banks, Constants.Args.kind_of_network, rand);
+        MakeVector(banks, rand);
+        MakeNeighborIn(banks);
         return banks;
     }
 
-    public static void Initializing_BalanceSheet(ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand){
-        make_Omega(banks, sum_marketable_assets, rand);
-        make_BalanceSheet(banks, sum_marketable_assets, markets, rand);
-        make_Borrowing_and_Lending_List(banks, sum_marketable_assets);
+    public static void InitializeBalanceSheet(ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand){
+        MakeOmega(banks, sum_marketable_assets, rand);
+        MakeBalanceSheet(banks, sum_marketable_assets, markets, rand);
+        MakeBorrowingAndLendingList(banks, sum_marketable_assets);
     }
 
-    public static void buy_or_sell_marketable_assets(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
+    public static void BuyOrSellMarketableAssets(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
         judge_VaR(banks, markets);
         calculate_expected_return(banks, markets, rand);
         Buy_or_Sell(banks);
@@ -64,13 +63,13 @@ public class Bank {
     }
 
 
-    public static void make_Banks(ArrayList<Bank> banks){
+    public static void MakeBanks(ArrayList<Bank> banks){
         for(int i = 0; i < Constants.N; i++){
             banks.add(new Bank(i, true)) ;
         }
     }
 
-    public static void make_Network(ArrayList<Bank> banks, int kind_of_network, Random rand){
+    public static void MakeNetwork(ArrayList<Bank> banks, int kind_of_network, Random rand){
         if(kind_of_network == 1){
             for(int i = 0; i < Constants.LargeNInt; i++){
                 for(int j = 0; j < i; j++){
@@ -177,7 +176,7 @@ public class Bank {
         }
     }
 
-    public static void make_Vector(ArrayList<Bank> banks, Random rand){
+    public static void MakeVector(ArrayList<Bank> banks, Random rand){
         for(int i = 0; i < Constants.N; i++){
             for(int j = 0; j < banks.get(i).neighbor.size(); j++) {
                 banks.get(i).preneighbor.add(banks.get(i).neighbor.get(j));
@@ -224,7 +223,7 @@ public class Bank {
             }
         }
     }
-    public static void make_NeighborIn(ArrayList<Bank> banks){
+    public static void MakeNeighborIn(ArrayList<Bank> banks){
         for(int i = 0; i < Constants.N; i++){
             for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
                 banks.get(banks.get(i).neighborOut.get(j)).neighborIn.add(i);
@@ -232,7 +231,7 @@ public class Bank {
         }
     }
 
-    public static void make_Omega(ArrayList<Bank> banks, double sum_marketable_assets, Random rand){
+    public static void MakeOmega(ArrayList<Bank> banks, double sum_marketable_assets, Random rand){
         for(int i = 0; i < Constants.N; i++){
             banks.get(i).sum_link_out = banks.get(i).neighborOut.size();
         }
@@ -257,7 +256,7 @@ public class Bank {
     }
 
 
-    public static void make_BalanceSheet(ArrayList<Bank> banks, Double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand){
+    public static void MakeBalanceSheet(ArrayList<Bank> banks, Double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand){
         double sum_lending_money = (Constants.BalanceSheet.gamma_whole / (1.0 - Constants.BalanceSheet.gamma_whole)) * sum_marketable_assets;
         ArrayList<Double> price_market = markets.get(0).getMarketPrice();
 
@@ -362,7 +361,7 @@ public class Bank {
         }
     }
 
-    public static void make_Borrowing_and_Lending_List(ArrayList<Bank> banks, double sum_marketable_assets){
+    public static void MakeBorrowingAndLendingList(ArrayList<Bank> banks, double sum_marketable_assets){
         for(int i = 0; i < Constants.N; i++){
             for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
                 double get = banks.get(i).Omega.get(banks.get(i).neighborOut.get(j));
@@ -471,7 +470,7 @@ public class Bank {
         return each_judge_fcn;
     }
 
-    public static void update_BalanceSheet(ArrayList<Bank> banks, ArrayList<MarketAsset> markets){
+    public static void UpdateBalanceSheet(ArrayList<Bank> banks, ArrayList<MarketAsset> markets){
         ArrayList<Double> marketprice = markets.get(0).getMarketPrice();
 
         for(int i = 0; i < Constants.N; i++){
@@ -517,7 +516,7 @@ public class Bank {
         update_Gap(banks);
     }
 
-    public static void go_eachBankrupt(ArrayList<Bank> banks, ArrayList<MarketAsset> markets){
+    public static void GoEachBankrupt(ArrayList<Bank> banks, ArrayList<MarketAsset> markets){
         judge_VaR(banks, markets);
         System.out.print("この回倒産したのは");
 
@@ -529,7 +528,7 @@ public class Bank {
             if(!banks.get(i).VaRjudge.get(0)){
                 double VaRf = Constants.VaR.Control * banks.get(i).BalanceSheet.get(3) / (Math.abs(banks.get(i).BalanceSheet.get(8)) * 0.98);
 
-                go_bankrupt(banks, i);
+                GoBankrupt(banks, i);
                 System.out.print(" " + i +",");
             }
             //if(bankArray(i).Gap < 0){
@@ -538,7 +537,7 @@ public class Bank {
         }
         System.out.println();
     }
-    public static void go_bankrupt(ArrayList<Bank> banks, int ruptID){
+    public static void GoBankrupt(ArrayList<Bank> banks, int ruptID){
         banks.get(ruptID).status = false;		//状態を１→０に変える
 
         //貸し借り表の値を全て０にする
