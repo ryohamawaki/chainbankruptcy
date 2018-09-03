@@ -39,6 +39,8 @@ public class Main {
 
                 Bank.go_eachBankrupt(banks, markets);
             }
+            int number_bunkrupt = Bank.countrupt(banks);
+            numbers_rupt.add(number_bunkrupt);
 
             System.out.println(numbers_rupt.get(0));
         }
