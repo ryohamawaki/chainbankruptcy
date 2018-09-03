@@ -55,12 +55,11 @@ public class MarketAsset {
     }
 
     public static void setupMarketAsset(MarketAsset marketAsset, Integer number, Random rand){
-        RandomHelper randHelp = new RandomHelper(rand);
             ArrayList<Double> price = new ArrayList<Double>();			//過去(m+1)日間における理論価格（＝市場価格）
             double p = 100.0;
             price.add(p);
             for(int i = 1; i < Constants.VaR.m+1;i++){
-                p = p + Constants.VaR.r_f * p * Constants.VaR.delta_t + Constants.VaR.sigma * p * randHelp.nextNormal(0.0,1.0)*Math.sqrt(Constants.VaR.delta_t);	//確率差分方程式で理論価格を計算
+                p = p + Constants.VaR.r_f * p * Constants.VaR.delta_t + Constants.VaR.sigma * p * rand.nextGaussian() * Math.sqrt(Constants.VaR.delta_t);	//確率差分方程式で理論価格を計算
                 price.add(p);								//第i試行の過去(m+1)日間の価格を加えていく
             }
 
@@ -196,9 +195,8 @@ public class MarketAsset {
 
     public static void update_fundamental_price(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
         ArrayList<Double> fundamentalprice = markets.get(0).getPrice();
-        RandomHelper randHelp = new RandomHelper(rand);
         double newprice = 0.0;
-        newprice = fundamentalprice.get(fundamentalprice.size()-1) + Constants.VaR.r_f * fundamentalprice.get(fundamentalprice.size()-1) * Constants.VaR.delta_t + Constants.VaR.sigma * fundamentalprice.get(fundamentalprice.size()-1) * randHelp.nextNormal(0.0,1.0) * Math.sqrt(Constants.VaR.delta_t);	//確率差分方程式で理論価格を計算
+        newprice = fundamentalprice.get(fundamentalprice.size()-1) + Constants.VaR.r_f * fundamentalprice.get(fundamentalprice.size()-1) * Constants.VaR.delta_t + Constants.VaR.sigma * fundamentalprice.get(fundamentalprice.size()-1) * rand.nextGaussian() * Math.sqrt(Constants.VaR.delta_t);	//確率差分方程式で理論価格を計算
         fundamentalprice.add(newprice);
     }
 

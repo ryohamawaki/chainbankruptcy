@@ -381,8 +381,7 @@ public class Bank {
         }
         chartMean_LogReturn = chartMean_LogReturn / Constants.FCN.tauC;
 
-        Gaussian gaussian = new Gaussian(rand);
-        double noise_LogReturn = 0.0 + Constants.FCN.noiseScale * gaussian.nextGaussian();
+        double noise_LogReturn = 0.0 + Constants.FCN.noiseScale * rand.nextGaussian();
 
         for(int i = 0; i < Constants.NInt; i++){
             double weight_F = 5 * rand.nextDouble();
