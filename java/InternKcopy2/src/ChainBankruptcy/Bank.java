@@ -521,7 +521,7 @@ public class Bank {
         System.out.print("この回倒産したのは");
 
         for(int i = 0; i < Constants.N; i++){
-            if(!banks.get(i).status){
+            if(banks.get(i).status == false){
                 continue;
             }
             //CAR<ThresholdまたはGap<0の時に銀行は倒産
@@ -560,7 +560,10 @@ public class Bank {
         }
         for(int i = 0; i < banks.get(ruptID).neighbor.size(); i++){
             //NeighborからruptIDを外す
-            banks.get(banks.get(ruptID).neighbor.get(i)).neighbor.remove(banks.get(banks.get(ruptID).neighbor.get(i)).neighbor.indexOf(ruptID));
+            int n = banks.get(ruptID).neighbor.get(i);
+            // System.err.println("" + i + " " + ruptID + " " + n);
+            Bank bank_n = banks.get(n);
+            bank_n.neighbor.remove(bank_n.neighbor.indexOf(ruptID));
         }
 
 

@@ -22,7 +22,9 @@ public class Main {
             for(int t = 0; t <= Constants.time; t++){
                 if(t == Constants.rupttime){
                     int ID = Constants.Args.start_index;
-                    Bank.GoBankrupt(banks, ID);
+                    if(banks.get(ID).status) {
+                        Bank.GoBankrupt(banks, ID);
+                    }
                 }
                 Bank.BuyOrSellMarketableAssets(banks, markets, rand);
 
