@@ -4,24 +4,17 @@ import java.util.*;
 
 public class Bank {
     double index;
-    double borrowing_money;
-    double lending_money;
     double expected_return;
     double gap;
 
     boolean status;
 
-    int count_link;
     int sum_link_out;
 
     ArrayList<Integer> neighbor = new ArrayList<Integer>();
-    ArrayList<Integer> preneighbor = new ArrayList<Integer>();
     ArrayList<Integer> neighborOut = new ArrayList<Integer>();
     ArrayList<Integer> neighborIn = new ArrayList<Integer>();
 
-    ArrayList<Integer> neighbor_scalefree = new ArrayList<Integer>();
-
-    double omega;
     Map<Integer, Double> Omega = new HashMap<>();
 
     ArrayList<Double> BalanceSheet = new ArrayList<Double>();
@@ -42,7 +35,9 @@ public class Bank {
 
     public static ArrayList<Bank> InitializeInterbankNetwork(Random rand){
         ArrayList<Bank> banks = new ArrayList<Bank>();
-        MakeBanks(banks);
+        for(int i = 0; i < Constants.N; i++){
+            banks.add(new Bank(i, true)) ;
+        }
         MakeNetwork(banks, Constants.Args.kind_of_network, rand);
         MakeVector(banks, rand);
         MakeNeighborIn(banks);
@@ -60,13 +55,6 @@ public class Bank {
         calculate_expected_return(banks, markets, rand);
         Buy_or_Sell(banks);
         MarketAsset.deal_marketable_assets(banks, markets, rand);
-    }
-
-
-    public static void MakeBanks(ArrayList<Bank> banks){
-        for(int i = 0; i < Constants.N; i++){
-            banks.add(new Bank(i, true)) ;
-        }
     }
 
     public static void MakeNetwork(ArrayList<Bank> banks, int kind_of_network, Random rand){
@@ -177,43 +165,48 @@ public class Bank {
     }
 
     public static void MakeVector(ArrayList<Bank> banks, Random rand){
+        ArrayList<ArrayList<Integer>> preneighbors = new ArrayList<ArrayList<Integer>>(banks.size());
         for(int i = 0; i < Constants.N; i++){
+            ArrayList<Integer> a = new ArrayList<>();
+            preneighbors.add(a);
             for(int j = 0; j < banks.get(i).neighbor.size(); j++) {
-                banks.get(i).preneighbor.add(banks.get(i).neighbor.get(j));
+                preneighbors.get(i).add(banks.get(i).neighbor.get(j));
             }
         }
 
         for(int i = 0; i < Constants.N; i++){
-            for(int j = 0; j < banks.get(i).preneighbor.size(); j++){
+            for(int j = 0; j < preneighbors.get(i).size(); j++){
                 if((i < Constants.LargeN && banks.get(i).neighbor.get(j) < Constants.LargeN) || (i >= Constants.LargeN && banks.get(i).neighbor.get(j) >= Constants.LargeN)){
+                    int k = preneighbors.get(i).get(j);
                     if(rand.nextDouble() <= 0.5){
-                        banks.get(i).neighborOut.add(banks.get(i).preneighbor.get(j));
+                        banks.get(i).neighborOut.add(k);
                     }else{
-                        banks.get(banks.get(i).preneighbor.get(j)).neighborOut.add(i);
+                        banks.get(k).neighborOut.add(i);
                     }
-                    banks.get(banks.get(i).preneighbor.get(j)).preneighbor.remove(banks.get(banks.get(i).preneighbor.get(j)).preneighbor.indexOf(i));
+                    preneighbors.get(k).remove(preneighbors.get(k).indexOf(i));
 
                     //変更したい
                     if(banks.get(i).neighborOut.size() == 0){
-                        banks.get(banks.get(i).preneighbor.get(j)).neighborOut.remove(banks.get(banks.get(i).preneighbor.get(j)).neighborOut.indexOf(i));
-                        banks.get(banks.get(i).preneighbor.get(j)).preneighbor.add(i);
+                        banks.get(k).neighborOut.remove(banks.get(k).neighborOut.indexOf(i));
+                        preneighbors.get(k).add(i);
                         j--;
                         continue;
                     }
                 }
 
                 if(i < Constants.LargeN && banks.get(i).neighbor.get(j) >= Constants.LargeN){
+                    int k = preneighbors.get(i).get(j);
                     if(rand.nextDouble() <= 0.5){
-                        banks.get(i).neighborOut.add(banks.get(i).preneighbor.get(j));
+                        banks.get(i).neighborOut.add(k);
                     }else{
-                        banks.get(banks.get(i).preneighbor.get(j)).neighborOut.add(i);
+                        banks.get(k).neighborOut.add(i);
                     }
-                    banks.get(banks.get(i).preneighbor.get(j)).preneighbor.remove(banks.get(banks.get(i).preneighbor.get(j)).preneighbor.indexOf(i));
+                    preneighbors.get(k).remove(preneighbors.get(k).indexOf(i));
 
                     //変更したい
                     if(banks.get(i).neighborOut.size() == 0){
-                        banks.get(banks.get(i).preneighbor.get(j)).neighborOut.remove(banks.get(banks.get(i).preneighbor.get(j)).neighborOut.indexOf(i));
-                        banks.get(banks.get(i).preneighbor.get(j)).preneighbor.add(i);
+                        banks.get(k).neighborOut.remove(banks.get(k).neighborOut.indexOf(i));
+                        preneighbors.get(k).add(i);
                         j--;
                         continue;
                     }
@@ -248,8 +241,8 @@ public class Bank {
         }
         for(int i = 0; i < Constants.N; i++){
             for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
-                banks.get(i).omega = Math.pow(banks.get(i).sum_link_out * banks.get(banks.get(i).neighborOut.get(j)).sum_link_out, r) * sum_lending_money / Omega_denominator;
-                banks.get(i).Omega.put(banks.get(i).neighborOut.get(j), banks.get(i).omega);
+                double omega = Math.pow(banks.get(i).sum_link_out * banks.get(banks.get(i).neighborOut.get(j)).sum_link_out, r) * sum_lending_money / Omega_denominator;
+                banks.get(i).Omega.put(banks.get(i).neighborOut.get(j), omega);
             }
         }
 
