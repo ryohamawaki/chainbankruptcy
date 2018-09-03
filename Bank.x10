@@ -321,7 +321,7 @@ public class Bank{
 
 					if(bankArray(i).NeighborOut.size() == 0){
 						bankArray(bankArray(i).preNeighbor(j)).NeighborOut.remove(i);
-						j--;
+						j--; 
 						continue;
 					}
 				}//小銀行同士も確率1/2
