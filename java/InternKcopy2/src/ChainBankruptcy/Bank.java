@@ -41,11 +41,13 @@ public class Bank {
         status = bankstatus;
     }
 
-    public static void Initializing_Interbank_Network(ArrayList<Bank> banks, Random rand){
+    public static ArrayList<Bank> Initializing_Interbank_Network(Random rand){
+        ArrayList<Bank> banks = new ArrayList<Bank>();
         make_Banks(banks);
         make_Network(banks, Constants.Args.kind_of_network, rand);
         make_Vector(banks, rand);
         make_NeighborIn(banks);
+        return banks;
     }
 
     public static void Initializing_BalanceSheet(ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand){

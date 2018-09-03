@@ -18,9 +18,7 @@ public class Main {
 
 
 
-            ArrayList<Bank> banks = new ArrayList<Bank>();
-
-            Bank.Initializing_Interbank_Network(banks, rand);
+            ArrayList<Bank> banks = Bank.Initializing_Interbank_Network(rand);
 
             ArrayList<MarketAsset> markets = MarketAsset.makeMarketAssets(rand);
 
