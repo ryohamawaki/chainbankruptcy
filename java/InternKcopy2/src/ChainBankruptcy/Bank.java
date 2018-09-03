@@ -11,21 +11,18 @@ public class Bank {
 
     int sum_link_out;
 
-    ArrayList<Integer> neighbor = new ArrayList<Integer>();
+    ArrayList<Integer> neighbor = new ArrayList<Integer>(); // [TODO] 削除。neighborOutとneighborInから作って返すメソッドを定義する
     ArrayList<Integer> neighborOut = new ArrayList<Integer>();
     ArrayList<Integer> neighborIn = new ArrayList<Integer>();
 
     Map<Integer, Double> Omega = new HashMap<>();
 
-    ArrayList<Double> BalanceSheet = new ArrayList<Double>();
-    ArrayList<Boolean> VaRjudge = new ArrayList<Boolean>();
+    ArrayList<Double> BalanceSheet = new ArrayList<Double>();  // [TODO] BalanceSheetクラスで置き換える
+    ArrayList<Boolean> VaRjudge = new ArrayList<Boolean>();   // [TODO] メンバー変数の削除。メソッドを作る
 
-
-    double count_borrowing_money;
+    double count_borrowing_money; // [TODO] 削除。メソッドで置き換える。その都度List_borrowingなどから計算できるはず
     Map<Integer, Double> List_borrowing = new HashMap<>();
     Map<Integer, Double> List_lending = new HashMap<>();
-
-    ArrayList<Integer> memoryID = new ArrayList<>();
 
 
     public Bank(int id, boolean bankstatus){
@@ -34,20 +31,19 @@ public class Bank {
     }
 
     public static ArrayList<Bank> InitializeInterbankNetwork(Random rand){
-        ArrayList<Bank> banks = new ArrayList<Bank>();
+        ArrayList<Bank> banks = new ArrayList<>();
         for(int i = 0; i < Constants.N; i++){
             banks.add(new Bank(i, true)) ;
         }
         MakeNetwork(banks, Constants.Args.kind_of_network, rand);
-        MakeVector(banks, rand);
-        MakeNeighborIn(banks);
+        AssignLinkDirection(banks, rand);
         return banks;
     }
 
     public static void InitializeBalanceSheet(ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand){
         MakeOmega(banks, sum_marketable_assets, rand);
         MakeBalanceSheet(banks, sum_marketable_assets, markets, rand);
-        MakeBorrowingAndLendingList(banks, sum_marketable_assets);
+        MakeBorrowingAndLendingList(banks);
     }
 
     public static void BuyOrSellMarketableAssets(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
@@ -164,7 +160,7 @@ public class Bank {
         }
     }
 
-    public static void MakeVector(ArrayList<Bank> banks, Random rand){
+    public static void AssignLinkDirection(ArrayList<Bank> banks, Random rand){
         ArrayList<ArrayList<Integer>> preneighbors = new ArrayList<ArrayList<Integer>>(banks.size());
         for(int i = 0; i < Constants.N; i++){
             ArrayList<Integer> a = new ArrayList<>();
@@ -215,8 +211,6 @@ public class Bank {
 
             }
         }
-    }
-    public static void MakeNeighborIn(ArrayList<Bank> banks){
         for(int i = 0; i < Constants.N; i++){
             for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
                 banks.get(banks.get(i).neighborOut.get(j)).neighborIn.add(i);
@@ -261,7 +255,8 @@ public class Bank {
 
         for(int i = 0; i < Constants. N; i++){
             for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
-                banks.get(banks.get(i).neighborOut.get(j)).count_borrowing_money += banks.get(i).Omega.get(banks.get(i).neighborOut.get(j));
+                int k = banks.get(i).neighborOut.get(j);
+                banks.get(k).count_borrowing_money += banks.get(i).Omega.get(k);
             }
         }
 
@@ -354,12 +349,13 @@ public class Bank {
         }
     }
 
-    public static void MakeBorrowingAndLendingList(ArrayList<Bank> banks, double sum_marketable_assets){
+    public static void MakeBorrowingAndLendingList(ArrayList<Bank> banks){
         for(int i = 0; i < Constants.N; i++){
             for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
-                double get = banks.get(i).Omega.get(banks.get(i).neighborOut.get(j));
-                banks.get(i).List_lending.put(banks.get(i).neighborOut.get(j),get);
-                banks.get(banks.get(i).neighborOut.get(j)).List_borrowing.put(i, get);
+                int k = banks.get(i).neighborOut.get(j);
+                double get = banks.get(i).Omega.get(k);
+                banks.get(i).List_lending.put(k, get);
+                banks.get(k).List_borrowing.put(i, get);
             }
         }
 
