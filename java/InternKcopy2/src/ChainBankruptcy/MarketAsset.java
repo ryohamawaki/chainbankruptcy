@@ -46,7 +46,7 @@ public class MarketAsset {
 
     public static ArrayList<MarketAsset> MakeMarketAssets(Random rand){
         ArrayList<MarketAsset> marketAssets = new ArrayList<MarketAsset>();
-        for(int j=0;j < Constants.VaR.M; j++){
+        for(int j=0; j < Constants.VaR.M; j++){
             MarketAsset marketAsset = new MarketAsset();
             SetupMarketAsset(marketAsset, j, rand);
             marketAssets.add(marketAsset);
@@ -113,7 +113,7 @@ public class MarketAsset {
 
     public static void deal_marketable_assets(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
         ArrayList<Double> market_price = markets.get(0).getMarketPrice();		//市場価格を取得
-        ArrayList<Integer> buy_or_sell = Bank.Buy_or_Sell(banks);					//買いか売りかを取得
+        ArrayList<Integer> buy_or_sell = Bank.Buy_or_Sell(banks, markets);					//買いか売りかを取得
         double sum = 0.0;						//買いと売りどちらが多いかを判定
         ArrayList<Integer> plus= new ArrayList<Integer>();		//買いの銀行のIDを格納
         ArrayList<Integer> minus = new ArrayList<Integer>();		//売りの銀行のIDを格納
@@ -127,32 +127,42 @@ public class MarketAsset {
             }
         }
         for(int i = 0; i < Constants.N; i++){
-            //買い手の方が多い時
-            if(sum > 0){
-                if(buy_or_sell.get(i) == -1){
-                    banks.get(i).BalanceSheet.set(8, banks.get(i).BalanceSheet.get(8) - 1);				//買い手が多かったら、売り手は絶対売れる
-                    banks.get(i).BalanceSheet.set(9, banks.get(i).BalanceSheet.get(9) + market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti);	//現金が増える
+            for(int j = 0; j < Constants.VaR.M; j++){
+                //買い手の方が多い時
+                if(sum > 0){
+                    if(buy_or_sell.get(i) == -1){
+                        banks.get(i).bs.num_stocks[j]--;
+                        //banks.get(i).BalanceSheet.set(8, banks.get(i).BalanceSheet.get(8) - 1);				//買い手が多かったら、売り手は絶対売れる
+                        banks.get(i).bs.cash = banks.get(i).bs.cash + market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti;	//現金が増える
+                        //banks.get(i).BalanceSheet.set(9, banks.get(i).BalanceSheet.get(9) + market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti);	//現金が増える
 
 
-                    int buyer = rand.nextInt(plus.size());
-                    banks.get(plus.get(buyer)).BalanceSheet.set(8, banks.get(i).BalanceSheet.get(8) + 1);					//購入
-                    banks.get(plus.get(buyer)).BalanceSheet.set(9, banks.get(i).BalanceSheet.get(9) - market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti);	//現金が増える
+                        int buyer = rand.nextInt(plus.size());
+                        banks.get(plus.get(buyer)).bs.num_stocks[j]++;
+                        //banks.get(plus.get(buyer)).BalanceSheet.set(8, banks.get(i).BalanceSheet.get(8) + 1);					//購入
+                        banks.get(plus.get(buyer)).bs.cash = banks.get(plus.get(buyer)).bs.cash - market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti;
+                        //banks.get(plus.get(buyer)).BalanceSheet.set(9, banks.get(i).BalanceSheet.get(9) - market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti);	//現金が増える
 
-                    plus.remove(plus.get(buyer));			//一度買ったら除外
-                }
-            }//売り手の方が多い時
-            else{
-                if(buy_or_sell.get(i) == 1){
-                    banks.get(i).BalanceSheet.set(8, banks.get(i).BalanceSheet.get(8) + 1);				//買い手が多かったら、売り手は絶対売れる
-                    banks.get(i).BalanceSheet.set(9, banks.get(i).BalanceSheet.get(9) - market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti);	//現金が増える
+                        plus.remove(plus.get(buyer));			//一度買ったら除外
+                    }
+                }//売り手の方が多い時
+                else{
+                    if(buy_or_sell.get(i) == 1){
+                        banks.get(i).bs.num_stocks[j]++;
+                        //banks.get(i).BalanceSheet.set(8, banks.get(i).BalanceSheet.get(8) + 1);				//買い手が多かったら、売り手は絶対売れる
+                        banks.get(i).bs.cash = banks.get(i).bs.cash - market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti;
+                        //banks.get(i).BalanceSheet.set(9, banks.get(i).BalanceSheet.get(9) - market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti);	//現金が増える
 
 
-                    //売り手は買い手の数だけしか売れない　→　ランダムにplusの中から取ってくる
-                    int seller = rand.nextInt(minus.size());
-                    banks.get(minus.get(seller)).BalanceSheet.set(8, banks.get(i).BalanceSheet.get(8) - 1);					//購入
-                    banks.get(minus.get(seller)).BalanceSheet.set(9, banks.get(i).BalanceSheet.get(9) + market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti);	//現金が増える
+                        //売り手は買い手の数だけしか売れない　→　ランダムにplusの中から取ってくる
+                        int seller = rand.nextInt(minus.size());
+                        banks.get(minus.get(seller)).bs.num_stocks[j]--;
+                        //banks.get(minus.get(seller)).BalanceSheet.set(8, banks.get(i).BalanceSheet.get(8) - 1);					//購入
+                        banks.get(minus.get(seller)).bs.cash = banks.get(minus.get(seller)).bs.cash + market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti;
+                        //banks.get(minus.get(seller)).BalanceSheet.set(9, banks.get(i).BalanceSheet.get(9) + market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti);	//現金が増える
 
-                    minus.remove(minus.get(seller));			//一度売ったら除外
+                        minus.remove(minus.get(seller));			//一度売ったら除外
+                    }
                 }
             }
         }
@@ -166,7 +176,7 @@ public class MarketAsset {
 
     public static void update_market_price(ArrayList<Bank> banks, ArrayList<MarketAsset> markets){
         ArrayList<Double> marketprice = markets.get(0).getMarketPrice();		//市場価格を取得
-        ArrayList<Integer> BORS = Bank.Buy_or_Sell(banks);					//買いか売りかを取得
+        ArrayList<Integer> BORS = Bank.Buy_or_Sell(banks, markets);					//買いか売りかを取得
         double buysurplus = 0.0;
         double number = 0.0;
 
@@ -185,7 +195,9 @@ public class MarketAsset {
         //総株数を数える
         int sumofstock = 0;
         for(int i = 0; i < Constants.N; i++){
-            sumofstock += banks.get(i).BalanceSheet.get(8);
+            for(int j = 0; j < Constants.VaR.M; j++) {
+                sumofstock += banks.get(i).bs.num_stocks[j];
+            }
         }
 
         double newprice = 0.0;					//新しい価格の初期化
@@ -198,6 +210,10 @@ public class MarketAsset {
         double newprice = 0.0;
         newprice = fundamentalprice.get(fundamentalprice.size()-1) + Constants.VaR.r_f * fundamentalprice.get(fundamentalprice.size()-1) * Constants.VaR.delta_t + Constants.VaR.sigma * fundamentalprice.get(fundamentalprice.size()-1) * rand.nextGaussian() * Math.sqrt(Constants.VaR.delta_t);	//確率差分方程式で理論価格を計算
         fundamentalprice.add(newprice);
+    }
+
+    public static void OutputMarketPrice(ArrayList<MarketAsset> markets){
+        System.out.println(markets.get(0).getMarketPrice());
     }
 
 }

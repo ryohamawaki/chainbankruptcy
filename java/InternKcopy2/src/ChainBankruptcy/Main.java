@@ -12,12 +12,11 @@ public class Main {
             ArrayList<Integer> numbers_rupt = new ArrayList<Integer>();
 
 
-
             ArrayList<Bank> banks = Bank.InitializeInterbankNetwork(rand);
-
+            //Bank.OutputNetwork(banks);
             ArrayList<MarketAsset> markets = MarketAsset.MakeMarketAssets(rand);
 
-            Bank.InitializeBalanceSheet(banks, sum_marketable_assets, markets, rand);
+            BalanceSheet.InitializeBalanceSheet(banks, sum_marketable_assets, markets, rand);
 
             for(int t = 0; t <= Constants.time; t++){
                 if(t == Constants.rupttime){
@@ -30,12 +29,12 @@ public class Main {
 
                 MarketAsset.UpdatePrice(banks, markets, rand);
 
-                Bank.UpdateBalanceSheet(banks, markets);
+                BalanceSheet.UpdateBalanceSheet(banks, markets);
 
                 Bank.GoEachBankrupt(banks, markets);
             }
-            int number_bunkrupt = Bank.countrupt(banks);
-            numbers_rupt.add(number_bunkrupt);
+            int number_bankrupt = Bank.countrupt(banks);
+            numbers_rupt.add(number_bankrupt);
 
             System.out.println(numbers_rupt.get(0));
         }

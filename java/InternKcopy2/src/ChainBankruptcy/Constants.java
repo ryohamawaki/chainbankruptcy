@@ -30,11 +30,11 @@ public class Constants {
 
     public static class Args{
         public static final boolean output = false;
-        public static final int trial_num = 1;
+        public static final int trial_num = 100;
         public static final int start_index = 0;
         public static final double coefficient_price_fluctuation = 0.5;
         public static final double p_large_to_smal = 0.5;
-        public static final int kind_of_network = 2;
+        public static final int kind_of_network = 1;
         public static final int num_of_link_scalefree = 8;
         public static final int num_of_largelink = 20;
         public static final int num_of_smalllink = 8;
