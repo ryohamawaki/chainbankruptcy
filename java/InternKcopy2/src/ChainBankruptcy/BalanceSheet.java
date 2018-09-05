@@ -197,6 +197,7 @@ public class BalanceSheet {
         }
     }
 
+
     public static void isClear(ArrayList<Bank> banks, int id){
         banks.get(id).bs.asset_sum = 0.0;
         banks.get(id).bs.marketable_asset = 0.0;
@@ -219,5 +220,12 @@ public class BalanceSheet {
             System.out.println(i + "の持株数　　：" + banks.get(i).bs.num_stocks[0]);
             System.out.println();
         }
+    }
+
+    public void Initialize() {
+        // [TODO]
+        // MakeOmega(banks, sum_marketable_assets, rand);
+        // MakeBalanceSheet(banks, sum_marketable_assets, markets, rand);
+        // MakeBorrowingAndLendingList(banks);
     }
 }

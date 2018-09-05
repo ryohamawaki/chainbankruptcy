@@ -30,7 +30,7 @@ public class Constants {
 
     public static class Args{
         public static final boolean output = false;
-        public static final int trial_num = 100;
+        public static final int trial_num = 5;
         public static final int start_index = 0;
         public static final double coefficient_price_fluctuation = 0.5;
         public static final double p_large_to_smal = 0.5;

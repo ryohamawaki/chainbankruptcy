@@ -11,12 +11,11 @@ public class Main {
             double sum_marketable_assets = (130 + (20 * r_1)) * Constants.N;
             ArrayList<Integer> numbers_rupt = new ArrayList<Integer>();
 
-
             ArrayList<Bank> banks = Bank.InitializeInterbankNetwork(rand);
             //Bank.OutputNetwork(banks);
             ArrayList<MarketAsset> markets = MarketAsset.MakeMarketAssets(rand);
-
-            BalanceSheet.InitializeBalanceSheet(banks, sum_marketable_assets, markets, rand);
+            for(Bank b: banks) { b.InitializeBalanceSheet(); }
+            // BalanceSheet.InitializeBalanceSheet(banks, sum_marketable_assets, markets, rand);
 
             for(int t = 0; t <= Constants.time; t++){
                 if(t == Constants.rupttime){

@@ -1,11 +1,10 @@
 package ChainBankruptcy;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Bank {
     double index;
-    double expected_return;
-    double gap;
 
     boolean status;
 
@@ -41,9 +40,7 @@ public class Bank {
     }
 
     public static void BuyOrSellMarketableAssets(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
-        judge_VaR(banks, markets);
-        calculate_expected_return(banks, markets, rand);
-        Buy_or_Sell(banks, markets);
+        // calculate_expected_return(banks, markets, rand); 不要なはず
         MarketAsset.deal_marketable_assets(banks, markets, rand);
     }
 
@@ -282,6 +279,10 @@ public class Bank {
         }
     }
 
+    public double CalculateExpectedReturn(ArrayList<MarketAsset> markets, Random rand) {
+        // [TODO] 実装 & calculate_expected... の削除
+    }
+
     public static ArrayList<Boolean> judge_VaR(ArrayList<Bank> banks, ArrayList<MarketAsset> markets){
         ArrayList<Boolean> VaRjudge = new ArrayList<Boolean>();
         ArrayList<Double> varlist = calculate_VaR(markets);
@@ -304,6 +305,11 @@ public class Bank {
         }
         return VaRjudge;
     }
+
+    public boolean judgeVaR(ArrayList<MarketAsset> markets) {
+        // [TODO] ... remove judge_VaR
+    }
+
     public static ArrayList<Double> calculate_VaR(ArrayList<MarketAsset> markets){
         ArrayList<Double> VaRList = new ArrayList<Double>();
         ArrayList<Double> log_return_List = new ArrayList<Double>();
@@ -351,7 +357,7 @@ public class Bank {
 
         for(int i = 0; i < Constants.N; i++){
             boolean judge_fcn = false;
-            if(banks.get(i).expected_return >= 0){
+            if(banks.get(i).CalculateExpectedReturn() >= 0){
                 judge_fcn = true;
             }
             each_judge_fcn.add(judge_fcn);
@@ -442,4 +448,17 @@ public class Bank {
         }
     }
 
+    public void InitializeBalanceSheet() {
+        this.bs.Initialize();
+        // [TODO]....
+    }
+
+    public void GoBankrupt() {
+        // [TODO] ....
+    }
+
+    public double CalculateGap() {
+        return -(bs.cash + bs.marketable_asset + bs.lending_money
+                - bs.equity_capital - bs.account - bs.borrowing_money);
+    }
 }
