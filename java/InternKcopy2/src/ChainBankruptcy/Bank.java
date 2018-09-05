@@ -451,7 +451,7 @@ public class Bank {
 
     public void InitializeBalanceSheet(ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand) {
         this.bs = new BalanceSheet();
-        this.bs.Initialize(banks, sum_marketable_assets, markets, rand);
+        this.bs.Initialize(this, banks, sum_marketable_assets, markets, rand);
         // [TODO]....completed
     }
 

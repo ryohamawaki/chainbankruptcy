@@ -2,12 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="08e93080-8c8e-4607-87ff-7f23f39e0396" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ChainBankruptcy/BalanceSheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ChainBankruptcy/BalanceSheet.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ChainBankruptcy/Bank.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ChainBankruptcy/Bank.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ChainBankruptcy/Constants.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ChainBankruptcy/Constants.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ChainBankruptcy/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ChainBankruptcy/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ChainBankruptcy/MarketAsset.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ChainBankruptcy/MarketAsset.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -26,22 +22,22 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="java" value="6" />
+          <entry key="java" value="8" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="JAVA" value="6" />
+          <entry key="JAVA" value="8" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="java" value="7363" />
+          <entry key="java" value="7632" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JAVA" value="7363" />
+          <entry key="JAVA" value="7632" />
         </counts>
       </usages-collector>
     </session>
@@ -51,8 +47,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/ChainBankruptcy/BalanceSheet.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="168">
-              <caret line="57" column="56" lean-forward="true" selection-start-line="57" selection-start-column="56" selection-end-line="57" selection-end-column="56" />
+            <state relative-caret-position="363">
+              <caret line="70" column="52" lean-forward="true" selection-start-line="70" selection-start-column="52" selection-end-line="70" selection-end-column="52" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -84,8 +80,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/ChainBankruptcy/Bank.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2305">
-              <caret line="274" selection-start-line="274" selection-end-line="274" />
+            <state relative-caret-position="124">
+              <caret line="275" selection-start-line="275" selection-end-line="275" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#225#234#0" expanded="true" />
@@ -121,6 +117,8 @@
       <find>MakeOmega</find>
       <find>TODO</find>
       <find>varlist</find>
+      <find>borrowing_money_count</find>
+      <find>rand</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -130,9 +128,9 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/src/ChainBankruptcy/MarketAsset.java" />
-        <option value="$PROJECT_DIR$/src/ChainBankruptcy/Bank.java" />
         <option value="$PROJECT_DIR$/src/ChainBankruptcy/Constants.java" />
         <option value="$PROJECT_DIR$/src/ChainBankruptcy/Main.java" />
+        <option value="$PROJECT_DIR$/src/ChainBankruptcy/Bank.java" />
         <option value="$PROJECT_DIR$/src/ChainBankruptcy/BalanceSheet.java" />
       </list>
     </option>
@@ -175,7 +173,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1536141610134" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1536145825185" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -239,8 +237,8 @@
       <window_info anchor="bottom" id="Messages" weight="0.32891566" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32891566" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.8746988" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.5566265" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.44819278" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.58433735" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -262,9 +260,9 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/ChainBankruptcy/BalanceSheet.java</url>
-          <line>85</line>
+          <line>66</line>
           <properties />
-          <option name="timeStamp" value="39" />
+          <option name="timeStamp" value="61" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -281,6 +279,21 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="430">
           <caret line="32" column="45" selection-start-line="32" selection-start-column="45" selection-end-line="32" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ChainBankruptcy/Bank.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="124">
+          <caret line="275" selection-start-line="275" selection-end-line="275" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#225#234#0" expanded="true" />
+            <element signature="e#287#296#0" expanded="true" />
+            <element signature="e#13387#13395#0" expanded="true" />
+            <element signature="e#13456#13464#0" expanded="true" />
+            <element signature="e#15095#15104#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -301,25 +314,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ChainBankruptcy/Bank.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2305">
-          <caret line="274" selection-start-line="274" selection-end-line="274" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#225#234#0" expanded="true" />
-            <element signature="e#287#296#0" expanded="true" />
-            <element signature="e#13387#13395#0" expanded="true" />
-            <element signature="e#13456#13464#0" expanded="true" />
-            <element signature="e#15095#15104#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/ChainBankruptcy/BalanceSheet.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="168">
-          <caret line="57" column="56" lean-forward="true" selection-start-line="57" selection-start-column="56" selection-end-line="57" selection-end-column="56" />
+        <state relative-caret-position="363">
+          <caret line="70" column="52" lean-forward="true" selection-start-line="70" selection-start-column="52" selection-end-line="70" selection-end-column="52" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

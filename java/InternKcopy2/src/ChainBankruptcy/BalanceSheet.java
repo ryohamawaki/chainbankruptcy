@@ -48,7 +48,7 @@ public class BalanceSheet {
         return omega;
     }
 
-    public void MakeBalanceSheet(ArrayList<Bank> banks, Double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand){
+    public void MakeBalanceSheet(Bank bank, ArrayList<Bank> banks, Double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand){
         double sum_lending_money = (Constants.BalanceSheet.gamma_whole / (1.0 - Constants.BalanceSheet.gamma_whole)) * sum_marketable_assets;
         ArrayList<Double> price_market = markets.get(0).getMarketPrice();
 
@@ -59,30 +59,29 @@ public class BalanceSheet {
                 borrowing_money_count[k] += MakeOmega(banks, sum_marketable_assets, rand).get(i).get(k);
             }
         }
+            bank.bs = new BalanceSheet();
+            bank.bs.borrowing_money = borrowing_money_count[bank.index];
 
-        for(int i = 0; i < Constants. N; i++) {
-            banks.get(i).bs = new BalanceSheet();
-            banks.get(i).bs.borrowing_money = borrowing_money_count[i];
 
-            double lending_money_count = 0.0;
-            for (int j = 0; j < banks.get(i).neighborOut.size(); j++) {
-                lending_money_count += MakeOmega(banks, sum_marketable_assets, rand).get(i).get(banks.get(i).neighborOut.get(j));
+        double lending_money_count = 0.0;
+            for (int i = 0; i < banks.get(bank.index).neighborOut.size(); i++) {
+                lending_money_count += MakeOmega(banks, sum_marketable_assets, rand).get(bank.index).get(banks.get(bank.index).neighborOut.get(i));
             }
-            banks.get(i).bs.lending_money = lending_money_count;
-        }
 
-        for(int i = 0; i < Constants.N; i++) {
-            double e = 0.0;
+        bank.bs.lending_money = lending_money_count;
+
+
+        double e = 0.0;
             double sum_borrowing_surplus = 0.0;
             double number_stock = 0.0;
             int number_stockInt = 0;
 
             for (int j = 0; j < Constants.N; j++) {
-                sum_borrowing_surplus += Math.max(banks.get(i).bs.borrowing_money - banks.get(i).bs.lending_money, 0.0);
+                sum_borrowing_surplus += Math.max(bank.bs.borrowing_money - bank.bs.lending_money, 0.0);
             }
-            e = Math.max(banks.get(i).bs.borrowing_money - banks.get(i).bs.lending_money, 0.0)
+            e = Math.max(bank.bs.borrowing_money - bank.bs.lending_money, 0.0)
                     + (sum_marketable_assets - sum_borrowing_surplus)
-                    * (banks.get(i).bs.lending_money / sum_lending_money);
+                    * (bank.bs.lending_money / sum_lending_money);
             number_stock = e * Constants.VaR.stockmulti / price_market.get(price_market.size() - 1);
             for (int j = 0; j < number_stock; j++) {
                 number_stockInt++;
@@ -90,46 +89,45 @@ public class BalanceSheet {
             e = 0.0;
             e = price_market.get(price_market.size() - 1) * number_stockInt / Constants.VaR.stockmulti;
 
-            banks.get(i).bs.marketable_asset = e;
-            banks.get(i).bs.num_stocks[0] = number_stockInt;
-        }
-        for(int i = 0; i < Constants.N; i++) {
-            double d = banks.get(i).neighborOut.size() * (30 + 10 * rand.nextDouble());
-            banks.get(i).bs.account = d;
-        }
-        for (int i = 0; i < Constants.N; i++){
+            bank.bs.marketable_asset = e;
+            bank.bs.num_stocks[0] = number_stockInt;
+
+
+            double d = bank.neighborOut.size() * (30 + 10 * rand.nextDouble());
+            bank.bs.account = d;
+
+
             double car = 0.1 + 0.2 * rand.nextDouble();
-            double c = (banks.get(i).bs.account + banks.get(i).bs.borrowing_money) * (car / (1 - car));
-            banks.get(i).bs.equity_capital = c;
+            double c = (bank.bs.account + bank.bs.borrowing_money) * (car / (1 - car));
+            bank.bs.equity_capital = c;
 
-            double a = Math.max(banks.get(i).bs.cash + banks.get(i).bs.marketable_asset + banks.get(i).bs.lending_money, banks.get(i).bs.equity_capital + banks.get(i).bs.account + banks.get(i).bs.borrowing_money);
-            banks.get(i).bs.asset_sum = a;
+            double a = Math.max(bank.bs.cash + bank.bs.marketable_asset + bank.bs.lending_money, bank.bs.equity_capital + bank.bs.account + bank.bs.borrowing_money);
+            bank.bs.asset_sum = a;
 
-            double gamma = banks.get(i).bs.lending_money / banks.get(i).bs.asset_sum;
-            banks.get(i).bs.gamma = gamma;
+            double gamma = bank.bs.lending_money / bank.bs.asset_sum;
+            bank.bs.gamma = gamma;
 
-            double money = banks.get(i).bs.equity_capital + banks.get(i).bs.account + banks.get(i).bs.borrowing_money - (banks.get(i).bs.marketable_asset + banks.get(i).bs.lending_money);
-            banks.get(i).bs.cash = money;
-        }
+            double money = bank.bs.equity_capital + bank.bs.account + bank.bs.borrowing_money - (bank.bs.marketable_asset + bank.bs.lending_money);
+            bank.bs.cash = money;
+
     }
 
-    public static void MakeBorrowingAndLendingList(ArrayList<Bank> banks, double sum_marketable_assets, Random rand){
+    public static void MakeBorrowingAndLendingList(Bank bank, ArrayList<Bank> banks, double sum_marketable_assets, Random rand){
         double sum_lending = 0.0;
         double sum_borrowing = 0.0;
-        for(int i = 0; i < Constants.N; i++){
-            for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
-                int k = banks.get(i).neighborOut.get(j);
-                double get = MakeOmega(banks, sum_marketable_assets, rand).get(i).get(k);
-                banks.get(i).List_lending.put(k, get);
-                banks.get(k).List_borrowing.put(i, get);
+            for(int j = 0; j < bank.neighborOut.size(); j++){
+                int k = bank.neighborOut.get(j);
+                double get = MakeOmega(banks, sum_marketable_assets, rand).get(bank.index).get(k);
+                bank.List_lending.put(k, get);
+                banks.get(k).List_borrowing.put(bank.index, get);
 
-                sum_lending += banks.get(i).List_lending.get(k);
-                sum_borrowing += banks.get(k).List_borrowing.get(i);
+                //sum_lending += bank.List_lending.get(k);
+                //sum_borrowing += banks.get(k).List_borrowing.get(i);
             }
         }
-        System.out.println("sum_lending:" + sum_lending);
-        System.out.println("sum_borrowing" + sum_borrowing);
-    }
+        //System.out.println("sum_lending:" + sum_lending);
+        //System.out.println("sum_borrowing" + sum_borrowing);
+
 
     public static void isClear(ArrayList<Bank> banks, int id){
         banks.get(id).bs.asset_sum = 0.0;
@@ -157,8 +155,8 @@ public class BalanceSheet {
         }
     }
 
-    public void Initialize(ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand) {
-        MakeBalanceSheet(banks, sum_marketable_assets, markets, rand);
-        MakeBorrowingAndLendingList(banks, sum_marketable_assets, rand);
+    public void Initialize(Bank bank, ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand) {
+        MakeBalanceSheet(bank,banks, sum_marketable_assets, markets, rand);
+        MakeBorrowingAndLendingList(bank, banks, sum_marketable_assets, rand);
     }
 }
