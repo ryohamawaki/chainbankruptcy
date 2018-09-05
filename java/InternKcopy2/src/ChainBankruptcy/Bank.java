@@ -4,16 +4,16 @@ import java.lang.reflect.Array;
 import java.util.*;
 
 public class Bank {
-    double index;
+    int index;
 
     boolean status;
 
-    int sum_link_out;
+    int sum_link_out; // [TODO] これも削除
 
     ArrayList<Integer> neighborOut = new ArrayList<Integer>();
     ArrayList<Integer> neighborIn = new ArrayList<Integer>();
 
-    Map<Integer, Double> Omega = new HashMap<>();
+    Map<Integer, Double> Omega = new HashMap<>(); // [TODO] これも削除
 
     BalanceSheet bs;
 
@@ -41,6 +41,8 @@ public class Bank {
     }
 
     public static void MakeNetwork(ArrayList<Bank> banks, int kind_of_network, Random rand){
+        ArrayList<ArrayList<Integer>> neighbor = MakeUndirectedGraph();
+        /*
         ArrayList<ArrayList<Integer>> neighbor = new ArrayList<>();
         for(int i = 0; i < Constants.N; i++){
             neighbor.add(new ArrayList<>());
@@ -181,50 +183,48 @@ public class Bank {
                 }
             }
         }
+        */
 
         //ここから方向を決める
-        ArrayList<ArrayList<Integer>> preneighbors = new ArrayList<ArrayList<Integer>>(banks.size());
-        for(int i = 0; i < Constants.N; i++){
-            ArrayList<Integer> a = new ArrayList<>();
-            preneighbors.add(a);
-            for(int j = 0; j < neighbor.get(i).size(); j++) {
-                preneighbors.get(i).add(neighbor.get(i).get(j));
-            }
-        }
+        ArrayList<Pair<Integer,Integer>> link_list = AssignDirection(neighbor);
+
+        // neighborOurにdirectedの情報を設定する
+        // [TODO]
+        // ....
 
         for(int i = 0; i < Constants.N; i++){
-            for(int j = 0; j < preneighbors.get(i).size(); j++){
+            for(int j = 0; j < neighbor.get(i).size(); j++){
                 if((i < Constants.LargeN && neighbor.get(i).get(j) < Constants.LargeN) || (i >= Constants.LargeN && neighbor.get(i).get(j) >= Constants.LargeN)){
-                    int k = preneighbors.get(i).get(j);
+                    int k = neighbor.get(i).get(j);
                     if(rand.nextDouble() <= 0.5){
                         banks.get(i).neighborOut.add(k);
                     }else{
                         banks.get(k).neighborOut.add(i);
                     }
-                    preneighbors.get(k).remove(preneighbors.get(k).indexOf(i));
+                    neighbor.get(k).remove(neighbor.get(k).indexOf(i));
 
                     //変更したい
                     if(banks.get(i).neighborOut.size() == 0){
                         banks.get(k).neighborOut.remove(banks.get(k).neighborOut.indexOf(i));
-                        preneighbors.get(k).add(i);
+                        neighbor.get(k).add(i);
                         j--;
                         continue;
                     }
                 }
 
                 if(i < Constants.LargeN && neighbor.get(i).get(j) >= Constants.LargeN){
-                    int k = preneighbors.get(i).get(j);
+                    int k = neighbor.get(i).get(j);
                     if(rand.nextDouble() <= 0.5){
                         banks.get(i).neighborOut.add(k);
                     }else{
                         banks.get(k).neighborOut.add(i);
                     }
-                    preneighbors.get(k).remove(preneighbors.get(k).indexOf(i));
+                    neighbor.get(k).remove(neighbor.get(k).indexOf(i));
 
                     //変更したい
                     if(banks.get(i).neighborOut.size() == 0){
                         banks.get(k).neighborOut.remove(banks.get(k).neighborOut.indexOf(i));
-                        preneighbors.get(k).add(i);
+                        neighbor.get(k).add(i);
                         j--;
                         continue;
                     }
