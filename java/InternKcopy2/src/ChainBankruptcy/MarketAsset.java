@@ -113,7 +113,7 @@ public class MarketAsset {
 
     public static void deal_marketable_assets(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
         ArrayList<Double> market_price = markets.get(0).getMarketPrice();		//市場価格を取得
-        ArrayList<Integer> buy_or_sell = Bank.Buy_or_Sell(banks, markets);					//買いか売りかを取得
+        List<Integer> buy_or_sell = banks.stream().collect(b -> b.BuyOrSell(markets, rand) );					//買いか売りかを取得
         double sum = 0.0;						//買いと売りどちらが多いかを判定
         ArrayList<Integer> plus= new ArrayList<Integer>();		//買いの銀行のIDを格納
         ArrayList<Integer> minus = new ArrayList<Integer>();		//売りの銀行のIDを格納

@@ -8,12 +8,12 @@ public class Bank {
 
     boolean status;
 
-    int sum_link_out; // [TODO] これも削除
+    //int sum_link_out; // [TODO] これも削除 completed
 
     ArrayList<Integer> neighborOut = new ArrayList<Integer>();
     ArrayList<Integer> neighborIn = new ArrayList<Integer>();
 
-    Map<Integer, Double> Omega = new HashMap<>(); // [TODO] これも削除
+    //Map<Integer, Double> Omega = new HashMap<>(); // [TODO] これも削除 completed
 
     BalanceSheet bs;
 
@@ -36,13 +36,35 @@ public class Bank {
     }
 
     public static void BuyOrSellMarketableAssets(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
-        // calculate_expected_return(banks, markets, rand); 不要なはず
         MarketAsset.deal_marketable_assets(banks, markets, rand);
     }
 
     public static void MakeNetwork(ArrayList<Bank> banks, int kind_of_network, Random rand){
-        ArrayList<ArrayList<Integer>> neighbor = MakeUndirectedGraph();
-        /*
+        ArrayList<ArrayList<Integer>> neighbor = MakeUndirectedGraph(kind_of_network, rand);
+
+        //ここから方向を決める
+        ArrayList<ArrayList<Integer>> link_list = AssignDirection(neighbor, rand);
+
+        // neighborOutにdirectedの情報を設定する
+        // [TODO link_listからneighborOutとneighborInを作る
+        // ....
+        LinklistToNeighborOutAndIn(banks, link_list);
+
+    }
+    public static ArrayList<ArrayList<Integer>> MakeNeighbor(ArrayList<Bank> banks){
+        ArrayList<ArrayList<Integer>> neighbor = new ArrayList<>();
+        for(int i = 0; i < Constants.N; i++){
+            for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
+                neighbor.get(i).add(banks.get(i).neighborOut.get(j));
+            }
+            for(int j = 0; j < banks.get(i).neighborIn.size(); j++){
+                neighbor.get(i).add(banks.get(i).neighborIn.get(j));
+            }
+        }
+        return neighbor;
+    }
+
+    public static ArrayList<ArrayList<Integer>> MakeUndirectedGraph(int kind_of_network, Random rand){
         ArrayList<ArrayList<Integer>> neighbor = new ArrayList<>();
         for(int i = 0; i < Constants.N; i++){
             neighbor.add(new ArrayList<>());
@@ -183,127 +205,114 @@ public class Bank {
                 }
             }
         }
-        */
+        return neighbor;
+    }
 
-        //ここから方向を決める
-        ArrayList<Pair<Integer,Integer>> link_list = AssignDirection(neighbor);
-
-        // neighborOurにdirectedの情報を設定する
-        // [TODO]
-        // ....
+    public static ArrayList<ArrayList<Integer>> AssignDirection(ArrayList<ArrayList<Integer>> neighbor, Random rand){
+        ArrayList<ArrayList<Integer>> link_list = new ArrayList<>();
+        ArrayList<Integer> link_list_out = new ArrayList<>();
+        ArrayList<Integer> link_list_in = new ArrayList<>();
 
         for(int i = 0; i < Constants.N; i++){
             for(int j = 0; j < neighbor.get(i).size(); j++){
                 if((i < Constants.LargeN && neighbor.get(i).get(j) < Constants.LargeN) || (i >= Constants.LargeN && neighbor.get(i).get(j) >= Constants.LargeN)){
                     int k = neighbor.get(i).get(j);
                     if(rand.nextDouble() <= 0.5){
-                        banks.get(i).neighborOut.add(k);
+                        link_list_out.add(i);
+                        link_list_in.add(k);
+                        //banks.get(i).neighborOut.add(k);
                     }else{
-                        banks.get(k).neighborOut.add(i);
+                        link_list_out.add(k);
+                        link_list_in.add(i);
                     }
                     neighbor.get(k).remove(neighbor.get(k).indexOf(i));
 
                     //変更したい
+                    /*
                     if(banks.get(i).neighborOut.size() == 0){
                         banks.get(k).neighborOut.remove(banks.get(k).neighborOut.indexOf(i));
                         neighbor.get(k).add(i);
                         j--;
                         continue;
                     }
+                    */
                 }
 
                 if(i < Constants.LargeN && neighbor.get(i).get(j) >= Constants.LargeN){
                     int k = neighbor.get(i).get(j);
                     if(rand.nextDouble() <= 0.5){
-                        banks.get(i).neighborOut.add(k);
+                        link_list_out.add(i);
+                        link_list_in.add(k);
                     }else{
-                        banks.get(k).neighborOut.add(i);
+                        link_list_out.add(k);
+                        link_list_in.add(i);
                     }
                     neighbor.get(k).remove(neighbor.get(k).indexOf(i));
 
                     //変更したい
+                    /*
                     if(banks.get(i).neighborOut.size() == 0){
                         banks.get(k).neighborOut.remove(banks.get(k).neighborOut.indexOf(i));
                         neighbor.get(k).add(i);
                         j--;
                         continue;
                     }
+                    */
                 }
 
 
             }
         }
-        for(int i = 0; i < Constants.N; i++){
-            for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
-                banks.get(banks.get(i).neighborOut.get(j)).neighborIn.add(i);
-            }
-        }
-    }
-    public static ArrayList<ArrayList<Integer>> MakeNeighbor(ArrayList<Bank> banks){
-        ArrayList<ArrayList<Integer>> neighbor = new ArrayList<>();
-        for(int i = 0; i < Constants.N; i++){
-            for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
-                neighbor.get(i).add(banks.get(i).neighborOut.get(j));
-            }
-            for(int j = 0; j < banks.get(i).neighborIn.size(); j++){
-                neighbor.get(i).add(banks.get(i).neighborIn.get(j));
-            }
-        }
-        return neighbor;
+        link_list.add(link_list_out);
+        link_list.add(link_list_in);
+        return link_list;
     }
 
-    public static void calculate_expected_return(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
-        ArrayList<Double> fundamental_price = markets.get(0).getPrice();		//理論価格の取得
-        ArrayList<Double> market_price = markets.get(0).getMarketPrice();	//市場価格の取得
-        double fundamental_LogReturn = Constants.FCN.tauF * Math.log(fundamental_price.get(fundamental_price.size()-1) / market_price.get(market_price.size()-1));
+    public static void LinklistToNeighborOutAndIn(ArrayList<Bank> banks, ArrayList<ArrayList<Integer>> link_list){
+        for(int i = 0; i < Constants.N ; i++){
+            for(int j = 0; j < link_list.size(); j++){
+                banks.get(i).neighborOut.add(link_list.get(0).get(j));
+                banks.get(i).neighborIn.add(link_list.get(1).get(j));
+            }
+        }
+    }
+
+    public static double[] CalculateExpectedReturn(ArrayList<MarketAsset> markets, Random rand) {
+        // [TODO] 実装 & calculate_expected... の削除
+        double[] expected_return = new double[(int) Constants.N];
+        ArrayList<Double> fundamental_price = markets.get(0).getPrice();        //理論価格の取得
+        ArrayList<Double> market_price = markets.get(0).getMarketPrice();    //市場価格の取得
+        double fundamental_LogReturn = Constants.FCN.tauF * Math.log(fundamental_price.get(fundamental_price.size() - 1) / market_price.get(market_price.size() - 1));
 
         double chartMean_LogReturn = 0;
-        for(int i = (market_price.size() - 1); i > (market_price.size() - Constants.FCN.tauC - 1); i--){
-            chartMean_LogReturn += Math.log(market_price.get(i)/market_price.get(i-1));
+        for (int i = (market_price.size() - 1); i > (market_price.size() - Constants.FCN.tauC - 1); i--) {
+            chartMean_LogReturn += Math.log(market_price.get(i) / market_price.get(i - 1));
         }
         chartMean_LogReturn = chartMean_LogReturn / Constants.FCN.tauC;
 
         double noise_LogReturn = 0.0 + Constants.FCN.noiseScale * rand.nextGaussian();
 
-        for(int i = 0; i < Constants.NInt; i++){
+        for (int i = 0; i < Constants.NInt; i++) {
             double weight_F = 5 * rand.nextDouble();
             double weight_C = rand.nextDouble();
             double weight_N = rand.nextDouble();
             double norm = weight_F + weight_C + weight_N;
 
-            banks.get(i).expected_return = (weight_F * fundamental_LogReturn + weight_C * chartMean_LogReturn + weight_N * noise_LogReturn) / norm;
+            expected_return[i] = (weight_F * fundamental_LogReturn + weight_C * chartMean_LogReturn + weight_N * noise_LogReturn) / norm;
         }
-    }
-
-    public double CalculateExpectedReturn(ArrayList<MarketAsset> markets, Random rand) {
-        // [TODO] 実装 & calculate_expected... の削除
-    }
-
-    public static ArrayList<Boolean> judge_VaR(ArrayList<Bank> banks, ArrayList<MarketAsset> markets){
-        ArrayList<Boolean> VaRjudge = new ArrayList<Boolean>();
-        ArrayList<Double> varlist = calculate_VaR(markets);
-
-
-
-        for(int i = 0; i < Constants.N; i++){
-            //VaRjudge.add(true);
-            //ArrayList<Boolean> each_VaRjudge = new ArrayList<Boolean>();
-            //for(int j = 0; j < Constants.VaR.M; j++){
-                boolean judge_VaR = false;
-                double VaRf = banks.get(i).bs.EquityCapitalRatio(varlist);
-
-                if(VaRf >= Constants.VaR.Threshold){
-                    judge_VaR = true;
-                }
-                VaRjudge.add(judge_VaR);
-            //}
-            //banks.get(i).VaRjudge.set(0, each_VaRjudge.get(0));
-        }
-        return VaRjudge;
+        return expected_return;
     }
 
     public boolean judgeVaR(ArrayList<MarketAsset> markets) {
-        // [TODO] ... remove judge_VaR
+        // [TODO] ... remove judge_VaR completed
+        Boolean varjudge = false;
+        ArrayList<Double> varlist = calculate_VaR(markets);
+        double VaRf = this.bs.EquityCapitalRatio(varlist);
+
+        if(VaRf >= Constants.VaR.Threshold){
+            varjudge = true;
+        }
+        return varjudge;
     }
 
     public static ArrayList<Double> calculate_VaR(ArrayList<MarketAsset> markets){
@@ -325,35 +334,28 @@ public class Bank {
     }
 
     //☆VaR制約→売り買いで「買い」＝＋１、「売り」＝−１を返す。
-    public static ArrayList<Integer> Buy_or_Sell(ArrayList<Bank> banks, ArrayList<MarketAsset> markets){
-        ArrayList<Integer> bors = new ArrayList<Integer>();			//結果を格納する配列
-        ArrayList<Boolean> fcnjudge = judge_FCN(banks);
-        for(int i = 0; i < Constants.N; i++){
-            int Plus_or_Minus = 0;
-            if(banks.get(i).status){
-                if(Plus_or_Minus == 0){
-                    if(!judge_VaR(banks, markets).get(i)){
-                        Plus_or_Minus = -1;
+    public int BuyOrSell(ArrayList<MarketAsset> markets, Random rand){
+        int plus_or_minus = 0;
+            if(this.status){
+                    if(!this.judgeVaR(markets)){
+                        plus_or_minus = -1;
                     }else{
-                        if(fcnjudge.get(i)){
-                            Plus_or_Minus = 1;
+                        if(judge_FCN(markets, rand).get(this.index)){
+                            plus_or_minus = 1;
                         }else{
-                            Plus_or_Minus = -1;
+                            plus_or_minus = -1;
                         }
                     }
-                }
-
             }
-            bors.add(Plus_or_Minus);
-        }
-        return(bors);
+        return plus_or_minus;
     }
-    public static ArrayList<Boolean> judge_FCN(ArrayList<Bank> banks){
+    public static ArrayList<Boolean> judge_FCN(ArrayList<MarketAsset> markets, Random rand){
         ArrayList<Boolean> each_judge_fcn = new ArrayList<Boolean>();		//結果を格納する配列
 
         for(int i = 0; i < Constants.N; i++){
             boolean judge_fcn = false;
-            if(banks.get(i).CalculateExpectedReturn() >= 0){
+            double [] e_returns = CalculateExpectedReturn(markets, rand);
+            if(e_returns[i] >= 0){
                 judge_fcn = true;
             }
             each_judge_fcn.add(judge_fcn);
@@ -362,7 +364,6 @@ public class Bank {
     }
 
     public static void GoEachBankrupt(ArrayList<Bank> banks, ArrayList<MarketAsset> markets){
-        judge_VaR(banks, markets);
         ArrayList<Double> varlist = calculate_VaR(markets);
         //System.out.print("倒産したのは: ");
 
@@ -371,7 +372,7 @@ public class Bank {
                 continue;
             }
             //CAR<ThresholdまたはGap<0の時に銀行は倒産
-            if(!judge_VaR(banks, markets).get(i)){
+            if(!banks.get(i).judgeVaR(markets)){
                 double VaRf = banks.get(i).bs.EquityCapitalRatio(varlist);
                 //System.out.print(i + ", ");
                 GoBankrupt(banks, i);
@@ -424,6 +425,10 @@ public class Bank {
         //BalanceSheet.OutputBalanceSheet(banks);
         BalanceSheet.isClear(banks, ruptID);
     }
+    public void GoBankrupt() {
+        // [TODO] .... 全体をいじるので難しい
+
+    }
 
     public static int countrupt(ArrayList<Bank> banks){
         int ruptnum = 0;
@@ -444,13 +449,50 @@ public class Bank {
         }
     }
 
-    public void InitializeBalanceSheet() {
-        this.bs.Initialize();
-        // [TODO]....
+    public void InitializeBalanceSheet(ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand) {
+        this.bs.Initialize(banks, sum_marketable_assets, markets, rand);
+        // [TODO]....completed
     }
 
-    public void GoBankrupt() {
-        // [TODO] ....
+    public void UpdateBalanceSheet(ArrayList<MarketAsset> markets){
+        ArrayList<Double> marketprice = markets.get(0).getMarketPrice();
+        if(status){
+            double e_update = 0.0;
+            e_update = CountUpNumStocks() * marketprice.get(marketprice.size() - 1) / Constants.VaR.stockmulti;
+            bs.marketable_asset = e_update;	//外部資産はBS(8)：持ち株数 * Mp（最新時刻）：市場価格から算出
+
+            double l_update = 0.0;
+            for(int i = 0; i < neighborOut.size(); i++){
+                l_update += List_lending.get(neighborOut.get(i));	//貸出額はLendListの総和から算出
+            }
+            bs.lending_money = l_update;
+
+            double b_update = 0.0;
+            for(int i = 0; i < neighborIn.size(); i++){
+                b_update += List_borrowing.get(neighborIn.get(i));	//借入額はBorrowListの総和から算出
+            }
+            bs.borrowing_money = b_update;
+
+            double c_update = 0.0;
+            double gap = -(bs.cash + bs.marketable_asset + bs.lending_money
+                    - bs.equity_capital - bs.account - bs.borrowing_money);
+            c_update = bs.equity_capital - gap + 0.0001;   //0.0001は浮動小数点対策
+
+            bs.equity_capital = c_update;
+
+            double a_update = 0.0;
+            a_update = Math.max(bs.cash + bs.marketable_asset + bs.lending_money,
+                    bs.equity_capital + bs.account + bs.borrowing_money);	//資産a=max(外部資産e+銀行間貸出l, 自己資本c+預金d+銀行間借入b)
+            bs.asset_sum = a_update;
+        }
+    }
+
+    public int CountUpNumStocks(){
+        int sum = 0;
+        for(int i = 0; i < Constants.VaR.M; i++){
+            sum += bs.num_stocks[i];
+        }
+        return sum;
     }
 
     public double CalculateGap() {

@@ -1,6 +1,8 @@
 package ChainBankruptcy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class BalanceSheet {
@@ -22,15 +24,11 @@ public class BalanceSheet {
     int[] num_stocks = new int[Constants.VaR.M]; // 持ち株数
     double cash;             // 現金
 
-    public static void InitializeBalanceSheet(ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand){
-        MakeOmega(banks, sum_marketable_assets, rand);
-        MakeBalanceSheet(banks, sum_marketable_assets, markets, rand);
-        MakeBorrowingAndLendingList(banks);
-    }
 
-    public static void MakeOmega(ArrayList<Bank> banks, double sum_marketable_assets, Random rand){
+    public static ArrayList<Map<Integer, Double>> MakeOmega(ArrayList<Bank> banks, double sum_marketable_assets, Random rand){
+        ArrayList<Map<Integer, Double>> omega = new ArrayList<>();
         for(int i = 0; i < Constants.N; i++){
-            banks.get(i).sum_link_out = banks.get(i).neighborOut.size();
+            omega.add(new HashMap<Integer, Double>());
         }
         double r = rand.nextDouble();
         double sum_lending_money = (Constants.BalanceSheet.gamma_whole / (1.0 - Constants.BalanceSheet.gamma_whole)) * sum_marketable_assets;
@@ -38,38 +36,27 @@ public class BalanceSheet {
         int Omega_denominator = 0;
         for(int i = 0; i < Constants.N; i++){
             for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
-                Omega_denominator += Math.pow(banks.get(i).sum_link_out * banks.get(banks.get(i).neighborOut.get(j)).sum_link_out, r);
+                Omega_denominator += Math.pow(banks.get(i).neighborOut.size() * banks.get(banks.get(i).neighborOut.get(j)).neighborOut.size(), r);
             }
         }
         for(int i = 0; i < Constants.N; i++){
             for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
-                double omega = Math.pow(banks.get(i).sum_link_out * banks.get(banks.get(i).neighborOut.get(j)).sum_link_out, r) * sum_lending_money / Omega_denominator;
-                banks.get(i).Omega.put(banks.get(i).neighborOut.get(j), omega);
+                double omega_i = Math.pow(banks.get(i).neighborOut.size() * banks.get(banks.get(i).neighborOut.get(j)).neighborOut.size(), r) * sum_lending_money / Omega_denominator;
+                omega.get(i).put(banks.get(i).neighborOut.get(j), omega_i);
             }
         }
-
+        return omega;
     }
-
-    public static void CountBorrowing_Money(){
-
-    }
-
 
     public static void MakeBalanceSheet(ArrayList<Bank> banks, Double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand){
         double sum_lending_money = (Constants.BalanceSheet.gamma_whole / (1.0 - Constants.BalanceSheet.gamma_whole)) * sum_marketable_assets;
         ArrayList<Double> price_market = markets.get(0).getMarketPrice();
 
-        /*for(int i = 0; i < Constants.N; i++){
-            for(int j = 0; j < 10; j++){
-                banks.get(i).BalanceSheet.add(0.0);
-            }
-        }*/
-
         double[] borrowing_money_count = new double[(int)Constants.N];
         for(int i = 0; i < Constants. N; i++){
             for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
                 int k = banks.get(i).neighborOut.get(j);
-                borrowing_money_count[k] += banks.get(i).Omega.get(k);
+                borrowing_money_count[k] += MakeOmega(banks, sum_marketable_assets, rand).get(i).get(k);
             }
         }
 
@@ -79,7 +66,7 @@ public class BalanceSheet {
 
             double lending_money_count = 0.0;
             for (int j = 0; j < banks.get(i).neighborOut.size(); j++) {
-                lending_money_count += banks.get(i).Omega.get(banks.get(i).neighborOut.get(j));
+                lending_money_count += MakeOmega(banks, sum_marketable_assets, rand).get(i).get(banks.get(i).neighborOut.get(j));
             }
             banks.get(i).bs.lending_money = lending_money_count;
         }
@@ -124,79 +111,17 @@ public class BalanceSheet {
         }
     }
 
-    public static int CountUpNumStocks(ArrayList<Bank> banks, int id){
-        int sum = 0;
-        for(int i = 0; i < Constants.VaR.M; i++){
-            sum += banks.get(id).bs.num_stocks[i];
-        }
-        return sum;
-    }
-
-    public static void MakeBorrowingAndLendingList(ArrayList<Bank> banks){
+    public static void MakeBorrowingAndLendingList(ArrayList<Bank> banks, double sum_marketable_assets, Random rand){
         for(int i = 0; i < Constants.N; i++){
             for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
                 int k = banks.get(i).neighborOut.get(j);
-                double get = banks.get(i).Omega.get(k);
+                double get = MakeOmega(banks, sum_marketable_assets, rand).get(i).get(k);
                 banks.get(i).List_lending.put(k, get);
                 banks.get(k).List_borrowing.put(i, get);
             }
         }
 
     }
-
-    public static void UpdateBalanceSheet(ArrayList<Bank> banks, ArrayList<MarketAsset> markets){
-        ArrayList<Double> marketprice = markets.get(0).getMarketPrice();
-
-        for(int i = 0; i < Constants.N; i++){
-            if(!banks.get(i).status){
-                continue;
-            }
-            double e_update = 0.0;
-            e_update = CountUpNumStocks(banks, i) * marketprice.get(marketprice.size() - 1) / Constants.VaR.stockmulti;
-            banks.get(i).bs.marketable_asset = e_update;	//外部資産はBS(8)：持ち株数 * Mp（最新時刻）：市場価格から算出
-        }
-
-        for(int i = 0; i < Constants.N; i++){
-            double l_update = 0.0;
-            for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
-                l_update += banks.get(i).List_lending.get(banks.get(i).neighborOut.get(j));	//貸出額はLendListの総和から算出
-            }
-            banks.get(i).bs.lending_money = l_update;
-        }
-
-        for(int i = 0; i < Constants.N; i++){
-            double b_update = 0.0;
-            for(int j = 0; j < banks.get(i).neighborIn.size(); j++){
-                b_update += banks.get(i).List_borrowing.get(banks.get(i).neighborIn.get(j));	//借入額はBorrowListの総和から算出
-            }
-            banks.get(i).bs.borrowing_money = b_update;
-        }
-
-        for(int i = 0; i < Constants.N; i++){
-            double c_update = 0.0;
-            double gap = -(banks.get(i).bs.cash + banks.get(i).bs.marketable_asset + banks.get(i).bs.lending_money
-                    - banks.get(i).bs.equity_capital - banks.get(i).bs.account - banks.get(i).bs.borrowing_money);
-            c_update = banks.get(i).bs.equity_capital - gap + 0.0001;   //0.0001は浮動小数点対策
-
-            banks.get(i).bs.equity_capital = c_update;
-        }
-
-        for(int i = 0; i < Constants.N; i++){
-            double a_update = 0.0;
-            a_update = Math.max(banks.get(i).bs.cash + banks.get(i).bs.marketable_asset + banks.get(i).bs.lending_money,
-                    banks.get(i).bs.equity_capital + banks.get(i).bs.account + banks.get(i).bs.borrowing_money);	//資産a=max(外部資産e+銀行間貸出l, 自己資本c+預金d+銀行間借入b)
-            banks.get(i).bs.asset_sum = a_update;
-        }
-        update_Gap(banks);
-    }
-
-    public static void update_Gap(ArrayList<Bank> banks){
-        for(int i = 0; i < Constants.N; i++){
-            banks.get(i).gap = -(banks.get(i).bs.cash + banks.get(i).bs.marketable_asset + banks.get(i).bs.lending_money
-                    - banks.get(i).bs.equity_capital - banks.get(i).bs.account - banks.get(i).bs.borrowing_money);
-        }
-    }
-
 
     public static void isClear(ArrayList<Bank> banks, int id){
         banks.get(id).bs.asset_sum = 0.0;
@@ -222,10 +147,8 @@ public class BalanceSheet {
         }
     }
 
-    public void Initialize() {
-        // [TODO]
-        // MakeOmega(banks, sum_marketable_assets, rand);
-        // MakeBalanceSheet(banks, sum_marketable_assets, markets, rand);
-        // MakeBorrowingAndLendingList(banks);
+    public void Initialize(ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand) {
+        MakeBalanceSheet(banks, sum_marketable_assets, markets, rand);
+        MakeBorrowingAndLendingList(banks, sum_marketable_assets, rand);
     }
 }

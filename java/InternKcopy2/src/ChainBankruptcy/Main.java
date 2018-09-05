@@ -12,10 +12,8 @@ public class Main {
             ArrayList<Integer> numbers_rupt = new ArrayList<Integer>();
 
             ArrayList<Bank> banks = Bank.InitializeInterbankNetwork(rand);
-            //Bank.OutputNetwork(banks);
             ArrayList<MarketAsset> markets = MarketAsset.MakeMarketAssets(rand);
-            for(Bank b: banks) { b.InitializeBalanceSheet(); }
-            // BalanceSheet.InitializeBalanceSheet(banks, sum_marketable_assets, markets, rand);
+            for(Bank b: banks) { b.InitializeBalanceSheet(banks, sum_marketable_assets, markets, rand); }
 
             for(int t = 0; t <= Constants.time; t++){
                 if(t == Constants.rupttime){
@@ -28,7 +26,7 @@ public class Main {
 
                 MarketAsset.UpdatePrice(banks, markets, rand);
 
-                BalanceSheet.UpdateBalanceSheet(banks, markets);
+                for(Bank b: banks){ b.UpdateBalanceSheet(markets);}
 
                 Bank.GoEachBankrupt(banks, markets);
             }
