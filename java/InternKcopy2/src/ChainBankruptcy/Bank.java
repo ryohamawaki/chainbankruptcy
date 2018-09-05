@@ -10,17 +10,13 @@ public class Bank {
 
     int sum_link_out;
 
-    //ArrayList<Integer> neighbor = new ArrayList<Integer>(); // [TODO] 削除。neighborOutとneighborInから作って返すメソッドを定義する
     ArrayList<Integer> neighborOut = new ArrayList<Integer>();
     ArrayList<Integer> neighborIn = new ArrayList<Integer>();
 
     Map<Integer, Double> Omega = new HashMap<>();
 
-    // ArrayList<Double> BalanceSheet = new ArrayList<Double>();  // [TODO] BalanceSheetクラスで置き換える→完了
     BalanceSheet bs;
-    //ArrayList<Boolean> VaRjudge = new ArrayList<Boolean>();   // [TODO] メンバー変数の削除。メソッドを作る→完了
 
-    //double count_borrowing_money; // [TODO] 削除。メソッドで置き換える。その都度List_borrowingなどから計算できるはず→Listからsize()で取得
     Map<Integer, Double> List_borrowing = new HashMap<>();
     Map<Integer, Double> List_lending = new HashMap<>();
 

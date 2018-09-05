@@ -132,35 +132,23 @@ public class MarketAsset {
                 if(sum > 0){
                     if(buy_or_sell.get(i) == -1){
                         banks.get(i).bs.num_stocks[j]--;
-                        //banks.get(i).BalanceSheet.set(8, banks.get(i).BalanceSheet.get(8) - 1);				//買い手が多かったら、売り手は絶対売れる
                         banks.get(i).bs.cash = banks.get(i).bs.cash + market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti;	//現金が増える
-                        //banks.get(i).BalanceSheet.set(9, banks.get(i).BalanceSheet.get(9) + market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti);	//現金が増える
-
 
                         int buyer = rand.nextInt(plus.size());
                         banks.get(plus.get(buyer)).bs.num_stocks[j]++;
-                        //banks.get(plus.get(buyer)).BalanceSheet.set(8, banks.get(i).BalanceSheet.get(8) + 1);					//購入
                         banks.get(plus.get(buyer)).bs.cash = banks.get(plus.get(buyer)).bs.cash - market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti;
-                        //banks.get(plus.get(buyer)).BalanceSheet.set(9, banks.get(i).BalanceSheet.get(9) - market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti);	//現金が増える
-
                         plus.remove(plus.get(buyer));			//一度買ったら除外
                     }
                 }//売り手の方が多い時
                 else{
                     if(buy_or_sell.get(i) == 1){
                         banks.get(i).bs.num_stocks[j]++;
-                        //banks.get(i).BalanceSheet.set(8, banks.get(i).BalanceSheet.get(8) + 1);				//買い手が多かったら、売り手は絶対売れる
                         banks.get(i).bs.cash = banks.get(i).bs.cash - market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti;
-                        //banks.get(i).BalanceSheet.set(9, banks.get(i).BalanceSheet.get(9) - market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti);	//現金が増える
-
 
                         //売り手は買い手の数だけしか売れない　→　ランダムにplusの中から取ってくる
                         int seller = rand.nextInt(minus.size());
                         banks.get(minus.get(seller)).bs.num_stocks[j]--;
-                        //banks.get(minus.get(seller)).BalanceSheet.set(8, banks.get(i).BalanceSheet.get(8) - 1);					//購入
                         banks.get(minus.get(seller)).bs.cash = banks.get(minus.get(seller)).bs.cash + market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti;
-                        //banks.get(minus.get(seller)).BalanceSheet.set(9, banks.get(i).BalanceSheet.get(9) + market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti);	//現金が増える
-
                         minus.remove(minus.get(seller));			//一度売ったら除外
                     }
                 }
