@@ -269,11 +269,11 @@ public class Bank {
     }
 
     public static void LinklistToNeighborOutAndIn(ArrayList<Bank> banks, ArrayList<ArrayList<Integer>> link_list){
-        for(int i = 0; i < Constants.N ; i++){
-            for(int j = 0; j < link_list.size(); j++){
-                banks.get(i).neighborOut.add(link_list.get(0).get(j));
-                banks.get(i).neighborIn.add(link_list.get(1).get(j));
-            }
+        for(int i = 0; i < link_list.get(0).size(); i++){
+            int n_out = link_list.get(0).get(i);
+            int n_in  = link_list.get(1).get(i);
+            banks.get(link_list.get(1).get(i)).neighborOut.add(link_list.get(0).get(i));
+            banks.get(link_list.get(0).get(i)).neighborIn.add(link_list.get(1).get(i));
         }
     }
 
@@ -365,7 +365,7 @@ public class Bank {
 
     public static void GoEachBankrupt(ArrayList<Bank> banks, ArrayList<MarketAsset> markets){
         ArrayList<Double> varlist = calculate_VaR(markets);
-        //System.out.print("倒産したのは: ");
+        System.out.print("倒産したのは: ");
 
         for(int i = 0; i < Constants.N; i++){
             if(banks.get(i).status == false){
@@ -374,14 +374,14 @@ public class Bank {
             //CAR<ThresholdまたはGap<0の時に銀行は倒産
             if(!banks.get(i).judgeVaR(markets)){
                 double VaRf = banks.get(i).bs.EquityCapitalRatio(varlist);
-                //System.out.print(i + ", ");
+                System.out.print(i + ", ");
                 GoBankrupt(banks, i);
             }
             //if(bankArray(i).Gap < 0){
             //bankrupt(bankArray, i);
             //}
         }
-        //System.out.println();
+        System.out.println();
     }
     public static void GoBankrupt(ArrayList<Bank> banks, int ruptID){
         //ArrayList<ArrayList<Integer>> neighbor = MakeNeighbor(banks);
@@ -450,6 +450,7 @@ public class Bank {
     }
 
     public void InitializeBalanceSheet(ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand) {
+        this.bs = new BalanceSheet();
         this.bs.Initialize(banks, sum_marketable_assets, markets, rand);
         // [TODO]....completed
     }

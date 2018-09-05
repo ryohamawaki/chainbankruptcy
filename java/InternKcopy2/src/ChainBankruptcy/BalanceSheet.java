@@ -48,7 +48,7 @@ public class BalanceSheet {
         return omega;
     }
 
-    public static void MakeBalanceSheet(ArrayList<Bank> banks, Double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand){
+    public void MakeBalanceSheet(ArrayList<Bank> banks, Double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand){
         double sum_lending_money = (Constants.BalanceSheet.gamma_whole / (1.0 - Constants.BalanceSheet.gamma_whole)) * sum_marketable_assets;
         ArrayList<Double> price_market = markets.get(0).getMarketPrice();
 
@@ -80,7 +80,9 @@ public class BalanceSheet {
             for (int j = 0; j < Constants.N; j++) {
                 sum_borrowing_surplus += Math.max(banks.get(i).bs.borrowing_money - banks.get(i).bs.lending_money, 0.0);
             }
-            e = Math.max(banks.get(i).bs.borrowing_money - banks.get(i).bs.lending_money, 0.0) + (sum_marketable_assets - sum_borrowing_surplus) * (banks.get(i).bs.lending_money / sum_lending_money);
+            e = Math.max(banks.get(i).bs.borrowing_money - banks.get(i).bs.lending_money, 0.0)
+                    + (sum_marketable_assets - sum_borrowing_surplus)
+                    * (banks.get(i).bs.lending_money / sum_lending_money);
             number_stock = e * Constants.VaR.stockmulti / price_market.get(price_market.size() - 1);
             for (int j = 0; j < number_stock; j++) {
                 number_stockInt++;
@@ -112,15 +114,21 @@ public class BalanceSheet {
     }
 
     public static void MakeBorrowingAndLendingList(ArrayList<Bank> banks, double sum_marketable_assets, Random rand){
+        double sum_lending = 0.0;
+        double sum_borrowing = 0.0;
         for(int i = 0; i < Constants.N; i++){
             for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
                 int k = banks.get(i).neighborOut.get(j);
                 double get = MakeOmega(banks, sum_marketable_assets, rand).get(i).get(k);
                 banks.get(i).List_lending.put(k, get);
                 banks.get(k).List_borrowing.put(i, get);
+
+                sum_lending += banks.get(i).List_lending.get(k);
+                sum_borrowing += banks.get(k).List_borrowing.get(i);
             }
         }
-
+        System.out.println("sum_lending:" + sum_lending);
+        System.out.println("sum_borrowing" + sum_borrowing);
     }
 
     public static void isClear(ArrayList<Bank> banks, int id){
@@ -133,7 +141,8 @@ public class BalanceSheet {
         banks.get(id).bs.gamma = 0.0;
         banks.get(id).bs.cash = 0.0;
     }
-    public static void OutputBalanceSheet(ArrayList<Bank> banks){
+    public static void OutputBalanceSheet(ArrayList<Bank> banks, ArrayList<MarketAsset> markets){
+        ArrayList<Double> varlist = Bank.calculate_VaR(markets);
         for(int i = 0; i < Constants.N; i++){
             System.out.println(i + "の総資産　　：" + banks.get(i).bs.asset_sum);
             System.out.println(i + "の市場性資産：" + banks.get(i).bs.marketable_asset);
@@ -143,6 +152,7 @@ public class BalanceSheet {
             System.out.println(i + "の預金　　　：" + banks.get(i).bs.account);
             System.out.println(i + "の借入　　　：" + banks.get(i).bs.borrowing_money);
             System.out.println(i + "の持株数　　：" + banks.get(i).bs.num_stocks[0]);
+            System.out.println(i + "のVaRf　　 ：" + banks.get(i).bs.EquityCapitalRatio(varlist)  );
             System.out.println();
         }
     }

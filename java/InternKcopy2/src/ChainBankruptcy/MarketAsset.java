@@ -1,5 +1,6 @@
 package ChainBankruptcy;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class MarketAsset {
@@ -113,7 +114,7 @@ public class MarketAsset {
 
     public static void deal_marketable_assets(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
         ArrayList<Double> market_price = markets.get(0).getMarketPrice();		//市場価格を取得
-        List<Integer> buy_or_sell = banks.stream().collect(b -> b.BuyOrSell(markets, rand) );					//買いか売りかを取得
+        List<Integer> buy_or_sell = banks.stream().map(b -> b.BuyOrSell(markets, rand) ).collect(Collectors.toList());					//買いか売りかを取得
         double sum = 0.0;						//買いと売りどちらが多いかを判定
         ArrayList<Integer> plus= new ArrayList<Integer>();		//買いの銀行のIDを格納
         ArrayList<Integer> minus = new ArrayList<Integer>();		//売りの銀行のIDを格納
@@ -159,18 +160,18 @@ public class MarketAsset {
 
     public static void UpdatePrice(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
         update_fundamental_price(banks, markets, rand);
-        update_market_price(banks, markets);
+        update_market_price(banks, markets, rand);
     }
 
-    public static void update_market_price(ArrayList<Bank> banks, ArrayList<MarketAsset> markets){
+    public static void update_market_price(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
         ArrayList<Double> marketprice = markets.get(0).getMarketPrice();		//市場価格を取得
-        ArrayList<Integer> BORS = Bank.Buy_or_Sell(banks, markets);					//買いか売りかを取得
+        List<Integer> buy_or_sell = banks.stream().map(b -> b.BuyOrSell(markets, rand) ).collect(Collectors.toList());					//買いか売りかを取得
         double buysurplus = 0.0;
         double number = 0.0;
 
         //買いがどれだけ多いかを数える
         for(int i = 0; i < Constants.N; i++){
-            buysurplus += BORS.get(i);
+            buysurplus += buy_or_sell.get(i);
         }
 
         //取引数を数える
