@@ -16,7 +16,6 @@ public class Main {
 
             for(Bank b: banks) { b.InitializeBalanceSheet(banks, sum_marketable_assets, market, rand); }
 
-            for(Bank b: banks) { b.OutputBalanceSheet(market); }
 
             for(int t = 0; t <= Constants.time; t++){
                 if(t == Constants.rupttime){
@@ -29,6 +28,10 @@ public class Main {
                 market.UpdateFundamentalPrice(rand);
                 for(Bank b: banks){ b.UpdateBalanceSheet(market.getLatestMarketPrice() );}
                 // BalanceSheet.OutputBalanceSheet(banks, markets);
+                for(Bank b: banks) {
+                    //System.out.println("BS of " + b.index);
+                    //b.OutputBalanceSheet(market);
+                }
                 Bank.GoEachBankrupt(banks, market);
             }
 

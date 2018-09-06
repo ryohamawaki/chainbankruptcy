@@ -25,13 +25,15 @@ public class Constants {
     public static final int rupttime = 1;
 
     public static class Args{
-        public static final int trial_num = 1;
+        public static final int trial_num = 10;
         public static final int start_index = 0;
         public static final double coefficient_price_fluctuation = 0.5;
         public static final int kind_of_network = 1;
         public static final int num_of_link_scalefree = 8;
         public static final int num_of_largelink = 20;
         public static final int num_of_smalllink = 8;
+        public static final double under_car = 0.05;
+        public static final double width = 0.05;
     }
 
     public static class Network{
