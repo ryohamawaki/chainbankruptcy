@@ -48,21 +48,21 @@ public class MarketAsset {
     public static ArrayList<MarketAsset> MakeMarketAssets(Random rand){
         ArrayList<MarketAsset> marketAssets = new ArrayList<MarketAsset>();
         for(int j=0; j < Constants.VaR.M; j++){
-            MarketAsset marketAsset = new MarketAsset();
-            SetupMarketAsset(marketAsset, j, rand);
-            marketAssets.add(marketAsset);
+            MarketAsset ma = NewMarketAsset(rand);
+            marketAssets.add(ma);
         }
         return marketAssets;
     }
 
-    public static void SetupMarketAsset(MarketAsset marketAsset, Integer number, Random rand){
-            ArrayList<Double> price = new ArrayList<Double>();			//過去(m+1)日間における理論価格（＝市場価格）
-            double p = 100.0;
-            price.add(p);
-            for(int i = 1; i < Constants.VaR.m+1;i++){
-                p = p + Constants.VaR.r_f * p * Constants.VaR.delta_t + Constants.VaR.sigma * p * rand.nextGaussian() * Math.sqrt(Constants.VaR.delta_t);	//確率差分方程式で理論価格を計算
-                price.add(p);								//第i試行の過去(m+1)日間の価格を加えていく
-            }
+    public static MarketAsset NewMarketAsset(Random rand){
+        MarketAsset ma = new MarketAsset();
+        ArrayList<Double> price = new ArrayList<Double>();			//過去(m+1)日間における理論価格（＝市場価格）
+        double p = 100.0;
+        price.add(p);
+        for(int i = 1; i < Constants.VaR.m+1;i++){
+            p = p + Constants.VaR.r_f * p * Constants.VaR.delta_t + Constants.VaR.sigma * p * rand.nextGaussian() * Math.sqrt(Constants.VaR.delta_t);	//確率差分方程式で理論価格を計算
+            price.add(p);								//第i試行の過去(m+1)日間の価格を加えていく
+        }
 
         //市場価格の作成
         boolean start = false;					//市場価格を計算し始める
@@ -74,8 +74,6 @@ public class MarketAsset {
         }else{
 
         }
-
-
 
         //価格の初期値
         double firstPrice = price.get(Constants.VaR.m);							//t=0における価格（ｔ＝0における時価）を外部資産の価格の初期値とする。
@@ -105,80 +103,63 @@ public class MarketAsset {
         }else{
             sigma_m = Math.sqrt(sigma_m/num2);		//その平均（分散）の平方根を求める
         }
-        //marketAsset.setFirstPrice(firstPrice);
-        marketAsset.setPrice(price);
-        marketAsset.setMarketPrice(MarketPrice);
-        marketAsset.setR_avg(r_avg);
-        marketAsset.setSigma_m(sigma_m);
+        //ma.setFirstPrice(firstPrice);
+        ma.setPrice(price);
+        ma.setMarketPrice(MarketPrice);
+        ma.setR_avg(r_avg);
+        ma.setSigma_m(sigma_m);
+        return ma;
     }
 
     public static void deal_marketable_assets(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
-        ArrayList<Double> market_price = markets.get(0).getMarketPrice();		//市場価格を取得
-        List<Integer> buy_or_sell = banks.stream().map(b -> b.BuyOrSell(markets, rand) ).collect(Collectors.toList());					//買いか売りかを取得
-        double sum = 0.0;						//買いと売りどちらが多いかを判定
-        ArrayList<Integer> plus= new ArrayList<Integer>();		//買いの銀行のIDを格納
-        ArrayList<Integer> minus = new ArrayList<Integer>();		//売りの銀行のIDを格納
+        ArrayList<Integer> buyers  = new ArrayList<Integer>();		//買いの銀行のIDを格納
+        ArrayList<Integer> sellers = new ArrayList<Integer>();		//売りの銀行のIDを格納
 
         for(int i = 0; i < Constants.N; i++){
-            sum += buy_or_sell.get(i);
-            if(buy_or_sell.get(i) == 1){
-                plus.add(i);
-            }else if(buy_or_sell.get(i) == -1){
-                minus.add(i);
+            int b_or_s = banks.get(i).BuyOrSell(markets, rand); // [TODO] 各銘柄に対して判定を行う必要があるはず
+            if(b_or_s == 1){
+                buyers.add(i);
+            }else if(b_or_s == -1){
+                sellers.add(i);
             }
         }
-        for(int i = 0; i < Constants.N; i++){
-            for(int j = 0; j < Constants.VaR.M; j++){
-                //買い手の方が多い時
-                if(sum > 0){
-                    if(buy_or_sell.get(i) == -1){
-                        banks.get(i).bs.num_stocks[j]--;
-                        banks.get(i).bs.cash = banks.get(i).bs.cash + market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti;	//現金が増える
-
-                        int buyer = rand.nextInt(plus.size());
-                        banks.get(plus.get(buyer)).bs.num_stocks[j]++;
-                        banks.get(plus.get(buyer)).bs.cash = banks.get(plus.get(buyer)).bs.cash - market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti;
-                        plus.remove(plus.get(buyer));			//一度買ったら除外
-                    }
-                }//売り手の方が多い時
-                else{
-                    if(buy_or_sell.get(i) == 1){
-                        banks.get(i).bs.num_stocks[j]++;
-                        banks.get(i).bs.cash = banks.get(i).bs.cash - market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti;
-
-                        //売り手は買い手の数だけしか売れない　→　ランダムにplusの中から取ってくる
-                        int seller = rand.nextInt(minus.size());
-                        banks.get(minus.get(seller)).bs.num_stocks[j]--;
-                        banks.get(minus.get(seller)).bs.cash = banks.get(minus.get(seller)).bs.cash + market_price.get(market_price.size() - 1) / Constants.VaR.stockmulti;
-                        minus.remove(minus.get(seller));			//一度売ったら除外
-                    }
-                }
+        while(buyers.size() > 0 && sellers.size() > 0) {
+            for(int j = 0; j < Constants.VaR.M; j++) {
+                double latest_price = markets.get(j).getLatestMarketPrice();        //市場価格を取得
+                int i = sellers.get(0);
+                Bank seller = banks.get(i);
+                seller.bs.num_stocks[j]--;
+                seller.bs.cash += latest_price / Constants.VaR.stockmulti;    //現金が増える
+                int r = rand.nextInt(buyers.size());
+                Bank buyer = banks.get(buyers.get(r));
+                buyer.bs.num_stocks[j]++;
+                buyer.bs.cash -= latest_price / Constants.VaR.stockmulti;
+                sellers.remove(0);
+                buyers.remove(r);
             }
         }
 
+        UpdateMarketPrice(buyers.size() - sellers.size());
+    }
+
+    private double getLatestMarketPrice() {
+        return marketprice.get(marketprice.size()-1);
     }
 
     public static void UpdatePrice(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
-        update_fundamental_price(banks, markets, rand);
+        update_fundamental_price(markets, rand);
         update_market_price(banks, markets, rand);
     }
 
     public static void update_market_price(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
-        ArrayList<Double> marketprice = markets.get(0).getMarketPrice();		//市場価格を取得
+        ArrayList<Double> market_price = markets.get(0).getMarketPrice();		//市場価格を取得
+        double latest_mp = markets.get(0).getLatestMarketPrice();
         List<Integer> buy_or_sell = banks.stream().map(b -> b.BuyOrSell(markets, rand) ).collect(Collectors.toList());					//買いか売りかを取得
         double buysurplus = 0.0;
-        double number = 0.0;
 
         //買いがどれだけ多いかを数える
         for(int i = 0; i < Constants.N; i++){
             buysurplus += buy_or_sell.get(i);
-        }
-
-        //取引数を数える
-        if(buysurplus > 0){
-            number = (Constants.N - buysurplus) / 2;
-        }else{
-            number = (Constants.N + buysurplus) / 2;
         }
 
         //総株数を数える
@@ -189,16 +170,15 @@ public class MarketAsset {
             }
         }
 
-        double newprice = 0.0;					//新しい価格の初期化
-        newprice = marketprice.get(marketprice.size()-1) + Constants.Args.coefficient_price_fluctuation * (marketprice.get(marketprice.size()-1)  * buysurplus / (sumofstock));		//(Pn+1 - Pn) / Pn = α×(Nb -Ns)/[総株数]の計算
-        marketprice.add(newprice);
+        double new_price = latest_mp + Constants.Args.coefficient_price_fluctuation * latest_mp * buysurplus / (sumofstock);		//(Pn+1 - Pn) / Pn = α×(Nb -Ns)/[総株数]の計算
+        market_price.add(new_price);
     }
 
-    public static void update_fundamental_price(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
+    public static void update_fundamental_price(ArrayList<MarketAsset> markets, Random rand){
         ArrayList<Double> fundamentalprice = markets.get(0).getPrice();
-        double newprice = 0.0;
-        newprice = fundamentalprice.get(fundamentalprice.size()-1) + Constants.VaR.r_f * fundamentalprice.get(fundamentalprice.size()-1) * Constants.VaR.delta_t + Constants.VaR.sigma * fundamentalprice.get(fundamentalprice.size()-1) * rand.nextGaussian() * Math.sqrt(Constants.VaR.delta_t);	//確率差分方程式で理論価格を計算
-        fundamentalprice.add(newprice);
+        double latest_price = fundamentalprice.get(fundamentalprice.size()-1);
+        double new_price = latest_price + Constants.VaR.r_f * latest_price * Constants.VaR.delta_t + Constants.VaR.sigma * latest_price * rand.nextGaussian() * Math.sqrt(Constants.VaR.delta_t);	//確率差分方程式で理論価格を計算
+        fundamentalprice.add(new_price);
     }
 
     public static void OutputMarketPrice(ArrayList<MarketAsset> markets){
