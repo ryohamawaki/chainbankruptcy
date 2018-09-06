@@ -35,10 +35,6 @@ public class Bank {
         BalanceSheet.MakeBorrowingAndLendingList(banks, Omega);
     }
 
-    public static void BuyOrSellMarketableAssets(ArrayList<Bank> banks, MarketAsset market, Random rand){
-        MarketAsset.deal_marketable_assets(banks, market, rand);
-    }
-
     public static void MakeNetwork(ArrayList<Bank> banks, int kind_of_network, Random rand){
         ArrayList<ArrayList<Integer>> neighbor = MakeUndirectedGraph(kind_of_network, rand);
 

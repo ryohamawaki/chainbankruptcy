@@ -33,12 +33,12 @@ public class MarketAsset {
         return ma;
     }
 
-    public static void deal_marketable_assets(ArrayList<Bank> banks, MarketAsset market, Random rand){
+    public void DealMarketAssets(ArrayList<Bank> banks, Random rand){
         ArrayList<Integer> buyers  = new ArrayList<Integer>();		//買いの銀行のIDを格納
         ArrayList<Integer> sellers = new ArrayList<Integer>();		//売りの銀行のIDを格納
 
         for(int i = 0; i < Constants.N; i++){
-            int b_or_s = banks.get(i).BuyOrSell(market, rand); // [TODO] 各銘柄に対して判定を行う必要があるはず
+            int b_or_s = banks.get(i).BuyOrSell(this, rand); // [TODO] 各銘柄に対して判定を行う必要があるはず
             if(b_or_s == 1){
                 buyers.add(i);
             }else if(b_or_s == -1){
@@ -46,7 +46,7 @@ public class MarketAsset {
             }
         }
         while(buyers.size() > 0 && sellers.size() > 0) {
-            double latest_price = market.getLatestMarketPrice();        //市場価格を取得
+            double latest_price = getLatestMarketPrice();        //市場価格を取得
             int i = sellers.get(0);
             Bank seller = banks.get(i);
             seller.bs.num_stocks--;
@@ -65,12 +65,12 @@ public class MarketAsset {
             total_num_stocks += banks.get(i).bs.num_stocks;
         }
 
-        UpdateMarketPrice(buyers.size() - sellers.size(), total_num_stocks, market);
+        UpdateMarketPrice(buyers.size() - sellers.size(), total_num_stocks);
     }
 
-    private static void UpdateMarketPrice(int buysurplus, int num_stocks, MarketAsset market) {
-        ArrayList<Double> market_price = market.getMarketPrice();		//市場価格を取得
-        double latest_mp = market.getLatestMarketPrice();
+    private void UpdateMarketPrice(int buysurplus, int num_stocks) {
+        ArrayList<Double> market_price = getMarketPrice();		//市場価格を取得
+        double latest_mp = getLatestMarketPrice();
 
         double new_price = latest_mp + Constants.Args.coefficient_price_fluctuation * latest_mp * buysurplus / num_stocks;		//(Pn+1 - Pn) / Pn = α×(Nb -Ns)/[総株数]の計算
         market_price.add(new_price);

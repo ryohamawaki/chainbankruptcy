@@ -25,7 +25,7 @@ public class Main {
                         Bank.GoBankrupt(banks, ID);
                     }
                 }
-                Bank.BuyOrSellMarketableAssets(banks, market, rand);
+                market.DealMarketAssets(banks, rand);
 
                 MarketAsset.update_fundamental_price(market, rand);
 
