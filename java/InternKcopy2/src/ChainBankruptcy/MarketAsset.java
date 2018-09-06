@@ -145,7 +145,7 @@ public class MarketAsset {
     }
 
     public static void UpdatePrice(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
-        update_fundamental_price(banks, markets, rand);
+        update_fundamental_price(markets, rand);
         update_market_price(banks, markets, rand);
     }
 
@@ -180,11 +180,11 @@ public class MarketAsset {
         marketprice.add(newprice);
     }
 
-    public static void update_fundamental_price(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
+    public static void update_fundamental_price(ArrayList<MarketAsset> markets, Random rand){
         ArrayList<Double> fundamentalprice = markets.get(0).getPrice();
-        double newprice = 0.0;
-        newprice = fundamentalprice.get(fundamentalprice.size()-1) + Constants.VaR.r_f * fundamentalprice.get(fundamentalprice.size()-1) * Constants.VaR.delta_t + Constants.VaR.sigma * fundamentalprice.get(fundamentalprice.size()-1) * rand.nextGaussian() * Math.sqrt(Constants.VaR.delta_t);	//確率差分方程式で理論価格を計算
-        fundamentalprice.add(newprice);
+        double latest_price = fundamentalprice.get(fundamentalprice.size()-1);
+        double new_price = latest_price + Constants.VaR.r_f * latest_price * Constants.VaR.delta_t + Constants.VaR.sigma * latest_price * rand.nextGaussian() * Math.sqrt(Constants.VaR.delta_t);	//確率差分方程式で理論価格を計算
+        fundamentalprice.add(new_price);
     }
 
     public static void OutputMarketPrice(ArrayList<MarketAsset> markets){
