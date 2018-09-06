@@ -48,21 +48,21 @@ public class MarketAsset {
     public static ArrayList<MarketAsset> MakeMarketAssets(Random rand){
         ArrayList<MarketAsset> marketAssets = new ArrayList<MarketAsset>();
         for(int j=0; j < Constants.VaR.M; j++){
-            MarketAsset marketAsset = new MarketAsset();
-            SetupMarketAsset(marketAsset, j, rand);
-            marketAssets.add(marketAsset);
+            MarketAsset ma = NewMarketAsset(rand);
+            marketAssets.add(ma);
         }
         return marketAssets;
     }
 
-    public static void SetupMarketAsset(MarketAsset marketAsset, Integer number, Random rand){
-            ArrayList<Double> price = new ArrayList<Double>();			//過去(m+1)日間における理論価格（＝市場価格）
-            double p = 100.0;
-            price.add(p);
-            for(int i = 1; i < Constants.VaR.m+1;i++){
-                p = p + Constants.VaR.r_f * p * Constants.VaR.delta_t + Constants.VaR.sigma * p * rand.nextGaussian() * Math.sqrt(Constants.VaR.delta_t);	//確率差分方程式で理論価格を計算
-                price.add(p);								//第i試行の過去(m+1)日間の価格を加えていく
-            }
+    public static MarketAsset NewMarketAsset(Random rand){
+        MarketAsset ma = new MarketAsset();
+        ArrayList<Double> price = new ArrayList<Double>();			//過去(m+1)日間における理論価格（＝市場価格）
+        double p = 100.0;
+        price.add(p);
+        for(int i = 1; i < Constants.VaR.m+1;i++){
+            p = p + Constants.VaR.r_f * p * Constants.VaR.delta_t + Constants.VaR.sigma * p * rand.nextGaussian() * Math.sqrt(Constants.VaR.delta_t);	//確率差分方程式で理論価格を計算
+            price.add(p);								//第i試行の過去(m+1)日間の価格を加えていく
+        }
 
         //市場価格の作成
         boolean start = false;					//市場価格を計算し始める
@@ -74,8 +74,6 @@ public class MarketAsset {
         }else{
 
         }
-
-
 
         //価格の初期値
         double firstPrice = price.get(Constants.VaR.m);							//t=0における価格（ｔ＝0における時価）を外部資産の価格の初期値とする。
@@ -105,11 +103,12 @@ public class MarketAsset {
         }else{
             sigma_m = Math.sqrt(sigma_m/num2);		//その平均（分散）の平方根を求める
         }
-        //marketAsset.setFirstPrice(firstPrice);
-        marketAsset.setPrice(price);
-        marketAsset.setMarketPrice(MarketPrice);
-        marketAsset.setR_avg(r_avg);
-        marketAsset.setSigma_m(sigma_m);
+        //ma.setFirstPrice(firstPrice);
+        ma.setPrice(price);
+        ma.setMarketPrice(MarketPrice);
+        ma.setR_avg(r_avg);
+        ma.setSigma_m(sigma_m);
+        return ma;
     }
 
     public static void deal_marketable_assets(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
