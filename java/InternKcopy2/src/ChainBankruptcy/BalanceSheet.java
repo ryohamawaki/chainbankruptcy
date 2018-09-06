@@ -22,7 +22,7 @@ public class BalanceSheet {
     double cash;             // 現金
 
 
-    public static ArrayList<Map<Integer, Double>> MakeOmega(ArrayList<Bank> banks, double sum_marketable_assets, Random rand){
+    public static ArrayList<Map<Integer, Double>> MakeOmega(ArrayList<ArrayList<Integer>> d_link_list, double sum_marketable_assets, Random rand){
         ArrayList<Map<Integer, Double>> omega = new ArrayList<>();
         for(int i = 0; i < Constants.N; i++){
             omega.add(new HashMap<Integer, Double>());
@@ -30,16 +30,22 @@ public class BalanceSheet {
         double r = rand.nextDouble();
         double sum_lending_money = (Constants.BalanceSheet.gamma_whole / (1.0 - Constants.BalanceSheet.gamma_whole)) * sum_marketable_assets;
 
-        int Omega_denominator = 0;
+        double Omega_denominator = 0.0;
         for(int i = 0; i < Constants.N; i++){
-            for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
-                Omega_denominator += Math.pow(banks.get(i).neighborOut.size() * banks.get(banks.get(i).neighborOut.get(j)).neighborOut.size(), r);
+            ArrayList<Integer> neighbor_out = d_link_list.get(i);
+            for(int n = 0; n < neighbor_out.size(); n++){
+                int j = neighbor_out.get(n);
+                int out_degree_j = d_link_list.get(j).size();
+                Omega_denominator += Math.pow(neighbor_out.size() * out_degree_j, r);
             }
         }
         for(int i = 0; i < Constants.N; i++){
-            for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
-                double omega_i = Math.pow(banks.get(i).neighborOut.size() * banks.get(banks.get(i).neighborOut.get(j)).neighborOut.size(), r) * sum_lending_money / Omega_denominator;
-                omega.get(i).put(banks.get(i).neighborOut.get(j), omega_i);
+            ArrayList<Integer> neighbor_out = d_link_list.get(i);
+            for(int n = 0; n < neighbor_out.size(); n++){
+                int j = neighbor_out.get(n);
+                int out_degree_j = d_link_list.get(j).size();
+                double omega_i = Math.pow(neighbor_out.size() * out_degree_j, r) * sum_lending_money / Omega_denominator;
+                omega.get(i).put(j, omega_i);
             }
         }
         return omega;

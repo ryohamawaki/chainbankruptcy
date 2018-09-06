@@ -1,15 +1,11 @@
 package ChainBankruptcy;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Bank {
     int index;
-
     boolean status;
-
-    ArrayList<Integer> neighborOut = new ArrayList<Integer>();
-    ArrayList<Integer> neighborIn = new ArrayList<Integer>();
-
     BalanceSheet bs;
 
     Map<Integer, Double> List_borrowing = new HashMap<>();
@@ -27,18 +23,16 @@ public class Bank {
         for(int i = 0; i < Constants.N; i++){
             banks.add(new Bank(i, true)) ;
         }
-        MakeNetwork(banks, Constants.Args.kind_of_network, rand);
-        ArrayList<Map<Integer, Double>> Omega = BalanceSheet.MakeOmega(banks, sum_marketable_assets, rand);
-        BalanceSheet.MakeBorrowingAndLendingList(banks, Omega);
+        ArrayList<ArrayList<Integer>> directed_link_list = MakeNetwork(banks, Constants.Args.kind_of_network, rand);
+        ArrayList<Map<Integer, Double>> weighted_dll = BalanceSheet.MakeOmega(directed_link_list, sum_marketable_assets, rand);
+        BalanceSheet.MakeBorrowingAndLendingList(banks, weighted_dll);
         return banks;
     }
 
-    private static void MakeNetwork(ArrayList<Bank> banks, int kind_of_network, Random rand){
+    private static ArrayList<ArrayList<Integer>> MakeNetwork(ArrayList<Bank> banks, int kind_of_network, Random rand){
         ArrayList<ArrayList<Integer>> neighbor = MakeUndirectedGraph(kind_of_network, rand);
-
         ArrayList<ArrayList<Integer>> link_list = AssignDirection(neighbor, rand);
-
-        LinklistToNeighborOutAndIn(banks, link_list);
+        return link_list;
     }
 
     private static ArrayList<ArrayList<Integer>> MakeUndirectedGraph(int kind_of_network, Random rand){
@@ -186,16 +180,16 @@ public class Bank {
     }
 
     public static ArrayList<ArrayList<Integer>> AssignDirection(ArrayList<ArrayList<Integer>> neighbor, Random rand){
-        ArrayList<Integer> link_list_out = new ArrayList<>();
-        ArrayList<Integer> link_list_in = new ArrayList<>();
-
+        ArrayList<ArrayList<Integer>> links = new ArrayList<>();
+        for(int i=0; i<Constants.N; i++) {
+            links.add( new ArrayList<Integer>());
+        }
         for(int i=0; i<Constants.N; i++) { // randomly choose out-going link for each node
             ArrayList<Integer> links_i = neighbor.get(i);
             if( links_i.size() == 0 ) { throw new RuntimeException("invalid network"); }
             int r = rand.nextInt(links_i.size());
             int j = links_i.get(r);
-            link_list_out.add(i);
-            link_list_in.add(j);
+            links.get(i).add(j);
 
             links_i.remove(r);
             ArrayList<Integer> links_j = neighbor.get(j);
@@ -206,8 +200,7 @@ public class Bank {
             if( links_i.size() == 0 ) { throw new RuntimeException("invalid network"); }
             int r = rand.nextInt(links_i.size());
             int j = links_i.get(r);
-            link_list_out.add(j);
-            link_list_in.add(i);
+            links.get(j).add(i);
 
             links_i.remove(r);
             ArrayList<Integer> links_j = neighbor.get(j);
@@ -218,32 +211,16 @@ public class Bank {
             while( links_i.size() > 0 ) {
                 int j = links_i.remove(0);
                 if (rand.nextDouble() <= 0.5) {
-                    link_list_out.add(j);
-                    link_list_in.add(i);
+                    links.get(j).add(i);
                 } else {
-                    link_list_out.add(i);
-                    link_list_in.add(j);
+                    links.get(i).add(j);
                 }
                 ArrayList<Integer> links_j = neighbor.get(j);
                 links_j.remove(links_j.indexOf(i));
             }
         }
 
-        ArrayList<ArrayList<Integer>> link_list = new ArrayList<>();
-        link_list.add(link_list_out);
-        link_list.add(link_list_in);
-        return link_list;
-    }
-
-    public static void LinklistToNeighborOutAndIn(ArrayList<Bank> banks, ArrayList<ArrayList<Integer>> link_list){
-        ArrayList<Integer> link_list_out = link_list.get(0);
-        ArrayList<Integer> link_list_in = link_list.get(1);
-        for(int i = 0; i < link_list_out.size(); i++){
-            int n_out = link_list_out.get(i);
-            int n_in  = link_list_in.get(i);
-            banks.get(n_out).neighborOut.add(n_in);
-            banks.get(n_in).neighborIn.add(n_out);
-        }
+        return links;
     }
 
     public static double[] CalculateExpectedReturn(MarketAsset market, Random rand) {
@@ -374,14 +351,14 @@ public class Bank {
 
     public static void OutputNetwork(ArrayList<Bank> banks){
         for (int i = 0; i < Constants.N; i++){
-            for (int j = 0; j < banks.get(i).neighborOut.size(); j++){
-                System.out.println(i + " " + banks.get(i).neighborOut.get(j));
+            for(Map.Entry<Integer,Double> entry: banks.get(i).List_lending.entrySet()) {
+                System.out.println(i + " " + entry.getKey());
             }
         }
     }
 
     public void InitializeBalanceSheet(ArrayList<Bank> banks, double sum_marketable_assets, MarketAsset market, Random rand) {
-        this.bs.Initialize(neighborOut.size(), banks, sum_marketable_assets, market, rand);
+        this.bs.Initialize( List_lending.size(), banks, sum_marketable_assets, market, rand);
     }
 
     public void UpdateBalanceSheet(double latest_market_price) {
