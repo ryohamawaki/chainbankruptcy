@@ -112,53 +112,32 @@ public class MarketAsset {
     }
 
     public static void deal_marketable_assets(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
-        List<Integer> buy_or_sell = banks.stream().map(b -> b.BuyOrSell(markets, rand) ).collect(Collectors.toList());					//買いか売りかを取得
-        int sum = 0;						//買いと売りどちらが多いかを判定
         ArrayList<Integer> buyers  = new ArrayList<Integer>();		//買いの銀行のIDを格納
         ArrayList<Integer> sellers = new ArrayList<Integer>();		//売りの銀行のIDを格納
 
         for(int i = 0; i < Constants.N; i++){
-            sum += buy_or_sell.get(i);
-            if(buy_or_sell.get(i) == 1){
+            int b_or_s = banks.get(i).BuyOrSell(markets, rand); // [TODO] 書く銘柄に対して判定を行う必要があるはず
+            if(b_or_s == 1){
                 buyers.add(i);
-            }else if(buy_or_sell.get(i) == -1){
+            }else if(b_or_s == -1){
                 sellers.add(i);
             }
         }
-        for(int i = 0; i < Constants.N; i++){
-            for(int j = 0; j < Constants.VaR.M; j++){
-                double latest_price = markets.get(j).getLatestMarketPrice();		//市場価格を取得
-                //買い手の方が多い時
-                if(sum > 0){
-                    if(buy_or_sell.get(i) == -1){
-                        Bank bi = banks.get(i);
-                        bi.bs.num_stocks[j]--;
-                        bi.bs.cash += latest_price / Constants.VaR.stockmulti;	//現金が増える
-
-                        int r = rand.nextInt(buyers.size());
-                        Bank bj = banks.get(buyers.get(r));
-                        bj.bs.num_stocks[j]++;
-                        bj.bs.cash += - latest_price / Constants.VaR.stockmulti;
-                        buyers.remove(r);			//一度買ったら除外
-                    }
-                }//売り手の方が多い時
-                else{
-                    if(buy_or_sell.get(i) == 1){
-                        Bank bi = banks.get(i);
-                        bi.bs.num_stocks[j]++;
-                        bi.bs.cash -= latest_price / Constants.VaR.stockmulti;
-
-                        //売り手は買い手の数だけしか売れない　→　ランダムにplusの中から取ってくる
-                        int r = rand.nextInt(sellers.size());
-                        Bank bj = banks.get(sellers.get(r));
-                        bj.bs.num_stocks[j]--;
-                        bj.bs.cash += latest_price / Constants.VaR.stockmulti;
-                        sellers.remove(r);			//一度売ったら除外
-                    }
-                }
+        while(buyers.size() > 0 && sellers.size() > 0) {
+            for(int j = 0; j < Constants.VaR.M; j++) {
+                double latest_price = markets.get(j).getLatestMarketPrice();        //市場価格を取得
+                int i = sellers.get(0);
+                Bank seller = banks.get(i);
+                seller.bs.num_stocks[j]--;
+                seller.bs.cash += latest_price / Constants.VaR.stockmulti;    //現金が増える
+                int r = rand.nextInt(buyers.size());
+                Bank buyer = banks.get(buyers.get(r));
+                buyer.bs.num_stocks[j]++;
+                buyer.bs.cash -= latest_price / Constants.VaR.stockmulti;
+                sellers.remove(0);
+                buyers.remove(r);
             }
         }
-
     }
 
     private double getLatestMarketPrice() {
