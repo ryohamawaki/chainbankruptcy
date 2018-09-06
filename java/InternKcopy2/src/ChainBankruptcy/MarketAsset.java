@@ -139,39 +139,28 @@ public class MarketAsset {
             }
         }
 
-        UpdateMarketPrice(buyers.size() - sellers.size());
+        //総株数を数える
+        int total_num_stocks = 0;
+        for(int i = 0; i < Constants.N; i++){
+            for(int j = 0; j < Constants.VaR.M; j++) {
+                total_num_stocks += banks.get(i).bs.num_stocks[j];
+            }
+        }
+
+        UpdateMarketPrice(buyers.size() - sellers.size(), total_num_stocks, markets);
+    }
+
+    private static void UpdateMarketPrice(int buysurplus, int num_stocks, ArrayList<MarketAsset> markets) {
+        ArrayList<Double> market_price = markets.get(0).getMarketPrice();		//市場価格を取得
+        double latest_mp = markets.get(0).getLatestMarketPrice();
+
+        double new_price = latest_mp + Constants.Args.coefficient_price_fluctuation * latest_mp * buysurplus / num_stocks;		//(Pn+1 - Pn) / Pn = α×(Nb -Ns)/[総株数]の計算
+        market_price.add(new_price);
+
     }
 
     private double getLatestMarketPrice() {
         return marketprice.get(marketprice.size()-1);
-    }
-
-    public static void UpdatePrice(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
-        update_fundamental_price(markets, rand);
-        update_market_price(banks, markets, rand);
-    }
-
-    public static void update_market_price(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
-        ArrayList<Double> market_price = markets.get(0).getMarketPrice();		//市場価格を取得
-        double latest_mp = markets.get(0).getLatestMarketPrice();
-        List<Integer> buy_or_sell = banks.stream().map(b -> b.BuyOrSell(markets, rand) ).collect(Collectors.toList());					//買いか売りかを取得
-        double buysurplus = 0.0;
-
-        //買いがどれだけ多いかを数える
-        for(int i = 0; i < Constants.N; i++){
-            buysurplus += buy_or_sell.get(i);
-        }
-
-        //総株数を数える
-        int sumofstock = 0;
-        for(int i = 0; i < Constants.N; i++){
-            for(int j = 0; j < Constants.VaR.M; j++) {
-                sumofstock += banks.get(i).bs.num_stocks[j];
-            }
-        }
-
-        double new_price = latest_mp + Constants.Args.coefficient_price_fluctuation * latest_mp * buysurplus / (sumofstock);		//(Pn+1 - Pn) / Pn = α×(Nb -Ns)/[総株数]の計算
-        market_price.add(new_price);
     }
 
     public static void update_fundamental_price(ArrayList<MarketAsset> markets, Random rand){

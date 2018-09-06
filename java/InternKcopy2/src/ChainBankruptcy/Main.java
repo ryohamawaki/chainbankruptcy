@@ -1,5 +1,7 @@
 package ChainBankruptcy;
 
+import sun.jvm.hotspot.oops.Mark;
+
 import java.util.Random;
 import java.util.ArrayList;
 
@@ -27,7 +29,7 @@ public class Main {
                 }
                 Bank.BuyOrSellMarketableAssets(banks, markets, rand);
 
-                MarketAsset.UpdatePrice(banks, markets, rand);
+                MarketAsset.update_fundamental_price(markets, rand);
 
                 for(Bank b: banks){ b.UpdateBalanceSheet(markets);}
 

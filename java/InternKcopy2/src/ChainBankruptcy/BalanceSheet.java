@@ -69,19 +69,12 @@ public class BalanceSheet {
         double sum_lending_money = (Constants.BalanceSheet.gamma_whole / (1.0 - Constants.BalanceSheet.gamma_whole)) * sum_marketable_assets;
         ArrayList<Double> price_market = markets.get(0).getMarketPrice();
 
-        double e = 0.0;
-            double number_stock = 0.0;
-        int number_stockInt = 0;
-
-        e = Math.max(borrowing_money - lending_money, 0.0)
+        double e_temp = Math.max(borrowing_money - lending_money, 0.0)
                 + (sum_marketable_assets - sum_borrowing_surplus)
                 * (lending_money / sum_lending_money);
-        number_stock = e * Constants.VaR.stockmulti / price_market.get(price_market.size() - 1);
-        for (int j = 0; j < number_stock; j++) {
-            number_stockInt++;
-        }
-        e = 0.0;
-        e = price_market.get(price_market.size() - 1) * number_stockInt / Constants.VaR.stockmulti;
+        double number_stock = e_temp * Constants.VaR.stockmulti / price_market.get(price_market.size() - 1);
+        int number_stockInt = (int) number_stock;
+        double e = price_market.get(price_market.size() - 1) * number_stockInt / Constants.VaR.stockmulti;
 
         marketable_asset = e;
         num_stocks[0] = number_stockInt;
