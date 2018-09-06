@@ -5,20 +5,12 @@ import java.util.*;
 public class MarketAsset {
     ArrayList<Double> fundamental_price = new ArrayList<Double>();
     ArrayList<Double> market_price = new ArrayList<Double>();
-    double return_average;
-    double return_sigma;
 
     public void setFundamental_price(ArrayList<Double> newPrice){
         this.fundamental_price = newPrice;
     }
     public void setMarketPrice(ArrayList<Double> newPrice){
         this.market_price = newPrice;
-    }
-    public void setR_avg(double newR_avg){
-        this.return_average = newR_avg;
-    }
-    public void setSigma_m(double newSigma_m){
-        this.return_sigma = newSigma_m;
     }
 
     public ArrayList<Double> getFundamental_price(){
@@ -42,49 +34,13 @@ public class MarketAsset {
         }
 
         //市場価格の作成
-        boolean start = false;					//市場価格を計算し始める
-        ArrayList<Double> MarketPrice = new ArrayList<Double>();
-        if(!start){
-            for(int i = 0; i < price.size(); i++){
-                MarketPrice.add(price.get(i));
-            }
-        }else{
-
+        ArrayList<Double> market_price = new ArrayList<Double>();
+        for(int i = 0; i < price.size(); i++){
+            market_price.add(price.get(i));
         }
 
-        //価格の初期値
-        double firstPrice = price.get(Constants.VaR.m);							//t=0における価格（ｔ＝0における時価）を外部資産の価格の初期値とする。
-        //平均リターン
-        double r_avg = 0.0;	//平均リターン
-        int num1 = 0;	//カウンター
-        for(int k = 0; k < Constants.VaR.m; k++){
-            if(price.get(k)==0.0) continue;							//例外処理。価格が0はスルー。
-            r_avg += (price.get(k+1)/price.get(k));					//過去m日間の日次リターンを足しあわせていき、
-            num1++;
-        }
-        if(num1==0){
-            r_avg = 0.0;	//価格が0ばかりのときは、平均リターンも0。
-        }else{
-            r_avg = r_avg/num1;	//その平均を求める。
-        }
-        //標準偏差
-        double sigma_m = 0.0;	//標準偏差
-        int num2 = 0;	//カウンター
-        for(int k=0; k < Constants.VaR.m; k++){
-            if(price.get(k)==0.0) continue;	//例外処理。価格が0はスルー。
-            sigma_m += ((price.get(k+1)/price.get(k))-r_avg)*((price.get(k+1)/price.get(k))-r_avg);	//過去m日間の平均リターン周りの二次モーメントを足しあわせていき、
-            num2++;
-        }
-        if(num2==0){
-            sigma_m = 0.0; //例外処理。価格0ばかりのときは、標準偏差も0とする。
-        }else{
-            sigma_m = Math.sqrt(sigma_m/num2);		//その平均（分散）の平方根を求める
-        }
-        //ma.setFirstPrice(firstPrice);
         ma.setFundamental_price(price);
-        ma.setMarketPrice(MarketPrice);
-        ma.setR_avg(r_avg);
-        ma.setSigma_m(sigma_m);
+        ma.setMarketPrice(market_price);
         return ma;
     }
 
