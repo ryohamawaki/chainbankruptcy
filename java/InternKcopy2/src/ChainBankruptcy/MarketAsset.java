@@ -81,11 +81,10 @@ public class MarketAsset {
         return market_price.get(market_price.size()-1);
     }
 
-    public static void update_fundamental_price(MarketAsset market, Random rand){
-        ArrayList<Double> fundamentalprice = market.getFundamental_price();
-        double latest_price = fundamentalprice.get(fundamentalprice.size()-1);
+    public void UpdateFundamentalPrice(Random rand){
+        double latest_price = fundamental_price.get(fundamental_price.size()-1);
         double new_price = latest_price + Constants.VaR.r_f * latest_price * Constants.VaR.delta_t + Constants.VaR.sigma * latest_price * rand.nextGaussian() * Math.sqrt(Constants.VaR.delta_t);	//確率差分方程式で理論価格を計算
-        fundamentalprice.add(new_price);
+        fundamental_price.add(new_price);
     }
 
     public static void OutputMarketPrice(ArrayList<MarketAsset> markets){
