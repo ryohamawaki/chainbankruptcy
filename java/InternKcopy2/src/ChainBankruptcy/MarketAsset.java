@@ -6,13 +6,6 @@ public class MarketAsset {
     ArrayList<Double> fundamental_price = new ArrayList<Double>();
     ArrayList<Double> market_price = new ArrayList<Double>();
 
-    public void setFundamental_price(ArrayList<Double> newPrice){
-        this.fundamental_price = newPrice;
-    }
-    public void setMarketPrice(ArrayList<Double> newPrice){
-        this.market_price = newPrice;
-    }
-
     public ArrayList<Double> getFundamental_price(){
         return this.fundamental_price;
     }
@@ -20,10 +13,6 @@ public class MarketAsset {
         return this.market_price;
     }
     public static MarketAsset MakeMarketAssets(Random rand){
-        return NewMarketAsset(rand);
-    }
-
-    private static MarketAsset NewMarketAsset(Random rand){
         MarketAsset ma = new MarketAsset();
         ArrayList<Double> price = new ArrayList<Double>();			//過去(m+1)日間における理論価格（＝市場価格）
         double p = 100.0;
@@ -39,8 +28,8 @@ public class MarketAsset {
             market_price.add(price.get(i));
         }
 
-        ma.setFundamental_price(price);
-        ma.setMarketPrice(market_price);
+        ma.fundamental_price = price;
+        ma.market_price = market_price;
         return ma;
     }
 
