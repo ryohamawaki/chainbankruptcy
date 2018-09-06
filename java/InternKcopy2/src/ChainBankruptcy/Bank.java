@@ -42,14 +42,9 @@ public class Bank {
     public static void MakeNetwork(ArrayList<Bank> banks, int kind_of_network, Random rand){
         ArrayList<ArrayList<Integer>> neighbor = MakeUndirectedGraph(kind_of_network, rand);
 
-        //ここから方向を決める
         ArrayList<ArrayList<Integer>> link_list = AssignDirection(neighbor, rand);
 
-        // neighborOutにdirectedの情報を設定する
-        // [TODO link_listからneighborOutとneighborInを作る
-        // ....
         LinklistToNeighborOutAndIn(banks, link_list);
-
     }
     public static ArrayList<ArrayList<Integer>> MakeNeighbor(ArrayList<Bank> banks){
         ArrayList<ArrayList<Integer>> neighbor = new ArrayList<>();
@@ -209,71 +204,63 @@ public class Bank {
     }
 
     public static ArrayList<ArrayList<Integer>> AssignDirection(ArrayList<ArrayList<Integer>> neighbor, Random rand){
-        ArrayList<ArrayList<Integer>> link_list = new ArrayList<>();
         ArrayList<Integer> link_list_out = new ArrayList<>();
         ArrayList<Integer> link_list_in = new ArrayList<>();
 
-        for(int i = 0; i < Constants.N; i++){
-            for(int j = 0; j < neighbor.get(i).size(); j++){
-                if((i < Constants.LargeN && neighbor.get(i).get(j) < Constants.LargeN) || (i >= Constants.LargeN && neighbor.get(i).get(j) >= Constants.LargeN)){
-                    int k = neighbor.get(i).get(j);
-                    if(rand.nextDouble() <= 0.5){
-                        link_list_out.add(i);
-                        link_list_in.add(k);
-                        //banks.get(i).neighborOut.add(k);
-                    }else{
-                        link_list_out.add(k);
-                        link_list_in.add(i);
-                    }
-                    neighbor.get(k).remove(neighbor.get(k).indexOf(i));
+        for(int i=0; i<Constants.N; i++) { // randomly choose out-going link for each node
+            ArrayList<Integer> links_i = neighbor.get(i);
+            if( links_i.size() == 0 ) { throw new RuntimeException("invalid network"); }
+            int r = rand.nextInt(links_i.size());
+            int j = links_i.get(r);
+            link_list_out.add(i);
+            link_list_in.add(j);
 
-                    //変更したい
-                    /*
-                    if(banks.get(i).neighborOut.size() == 0){
-                        banks.get(k).neighborOut.remove(banks.get(k).neighborOut.indexOf(i));
-                        neighbor.get(k).add(i);
-                        j--;
-                        continue;
-                    }
-                    */
+            links_i.remove(r);
+            ArrayList<Integer> links_j = neighbor.get(j);
+            links_j.remove(links_j.indexOf(i));
+        }
+        for(int i=0; i<Constants.N; i++) { // randomly choose in-coming link for each node
+            ArrayList<Integer> links_i = neighbor.get(i);
+            if( links_i.size() == 0 ) { throw new RuntimeException("invalid network"); }
+            int r = rand.nextInt(links_i.size());
+            int j = links_i.get(r);
+            link_list_out.add(j);
+            link_list_in.add(i);
+
+            links_i.remove(r);
+            ArrayList<Integer> links_j = neighbor.get(j);
+            links_j.remove(links_j.indexOf(i));
+        }
+        for(int i=0; i<Constants.N; i++) { // randomly choose in-coming link for each node
+            ArrayList<Integer> links_i = neighbor.get(i);
+            while( links_i.size() > 0 ) {
+                int j = links_i.remove(0);
+                if (rand.nextDouble() <= 0.5) {
+                    link_list_out.add(j);
+                    link_list_in.add(i);
+                } else {
+                    link_list_out.add(i);
+                    link_list_in.add(j);
                 }
-
-                if(i < Constants.LargeN && neighbor.get(i).get(j) >= Constants.LargeN){
-                    int k = neighbor.get(i).get(j);
-                    if(rand.nextDouble() <= 0.5){
-                        link_list_out.add(i);
-                        link_list_in.add(k);
-                    }else{
-                        link_list_out.add(k);
-                        link_list_in.add(i);
-                    }
-                    neighbor.get(k).remove(neighbor.get(k).indexOf(i));
-
-                    //変更したい
-                    /*
-                    if(banks.get(i).neighborOut.size() == 0){
-                        banks.get(k).neighborOut.remove(banks.get(k).neighborOut.indexOf(i));
-                        neighbor.get(k).add(i);
-                        j--;
-                        continue;
-                    }
-                    */
-                }
-
-
+                ArrayList<Integer> links_j = neighbor.get(j);
+                links_j.remove(links_j.indexOf(i));
             }
         }
+
+        ArrayList<ArrayList<Integer>> link_list = new ArrayList<>();
         link_list.add(link_list_out);
         link_list.add(link_list_in);
         return link_list;
     }
 
     public static void LinklistToNeighborOutAndIn(ArrayList<Bank> banks, ArrayList<ArrayList<Integer>> link_list){
-        for(int i = 0; i < link_list.get(0).size(); i++){
-            int n_out = link_list.get(0).get(i);
-            int n_in  = link_list.get(1).get(i);
-            banks.get(link_list.get(1).get(i)).neighborOut.add(link_list.get(0).get(i));
-            banks.get(link_list.get(0).get(i)).neighborIn.add(link_list.get(1).get(i));
+        ArrayList<Integer> link_list_out = link_list.get(0);
+        ArrayList<Integer> link_list_in = link_list.get(1);
+        for(int i = 0; i < link_list_out.size(); i++){
+            int n_out = link_list_out.get(i);
+            int n_in  = link_list_in.get(i);
+            banks.get(n_out).neighborOut.add(n_in);
+            banks.get(n_in).neighborIn.add(n_out);
         }
     }
 

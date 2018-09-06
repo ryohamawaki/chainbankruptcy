@@ -32,7 +32,7 @@ public class MarketAsset {
         return NewMarketAsset(rand);
     }
 
-    public static MarketAsset NewMarketAsset(Random rand){
+    private static MarketAsset NewMarketAsset(Random rand){
         MarketAsset ma = new MarketAsset();
         ArrayList<Double> price = new ArrayList<Double>();			//過去(m+1)日間における理論価格（＝市場価格）
         double p = 100.0;
