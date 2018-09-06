@@ -11,9 +11,9 @@ public class Main {
             double sum_marketable_assets = (130 + (20 * r_1)) * Constants.N;
             ArrayList<Integer> numbers_rupt = new ArrayList<Integer>();
 
-            ArrayList<Bank> banks = Bank.InitializeInterbankNetwork(rand);
             MarketAsset market = MarketAsset.MakeMarketAssets(rand);
-            Bank.InitializeFinancing(banks, sum_marketable_assets, rand);
+            ArrayList<Bank> banks = Bank.InitializeInterbankNetwork(rand, sum_marketable_assets);
+
             for(Bank b: banks) { b.InitializeBalanceSheet(banks, sum_marketable_assets, market, rand); }
 
             BalanceSheet.OutputBalanceSheet(banks, market);
@@ -27,11 +27,8 @@ public class Main {
                 }
                 market.DealMarketAssets(banks, rand);
                 market.UpdateFundamentalPrice(rand);
-
                 for(Bank b: banks){ b.UpdateBalanceSheet(market.getLatestMarketPrice() );}
-
                 // BalanceSheet.OutputBalanceSheet(banks, markets);
-
                 Bank.GoEachBankrupt(banks, market);
             }
 

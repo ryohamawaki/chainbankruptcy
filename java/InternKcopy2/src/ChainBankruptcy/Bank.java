@@ -22,40 +22,26 @@ public class Bank {
         bs = new BalanceSheet();
     }
 
-    public static ArrayList<Bank> InitializeInterbankNetwork(Random rand){
+    public static ArrayList<Bank> InitializeInterbankNetwork(Random rand, double sum_marketable_assets){
         ArrayList<Bank> banks = new ArrayList<>();
         for(int i = 0; i < Constants.N; i++){
             banks.add(new Bank(i, true)) ;
         }
         MakeNetwork(banks, Constants.Args.kind_of_network, rand);
-        return banks;
-    }
-    public static void InitializeFinancing(ArrayList<Bank> banks, Double sum_marketable_assets, Random rand) {
         ArrayList<Map<Integer, Double>> Omega = BalanceSheet.MakeOmega(banks, sum_marketable_assets, rand);
         BalanceSheet.MakeBorrowingAndLendingList(banks, Omega);
+        return banks;
     }
 
-    public static void MakeNetwork(ArrayList<Bank> banks, int kind_of_network, Random rand){
+    private static void MakeNetwork(ArrayList<Bank> banks, int kind_of_network, Random rand){
         ArrayList<ArrayList<Integer>> neighbor = MakeUndirectedGraph(kind_of_network, rand);
 
         ArrayList<ArrayList<Integer>> link_list = AssignDirection(neighbor, rand);
 
         LinklistToNeighborOutAndIn(banks, link_list);
     }
-    public static ArrayList<ArrayList<Integer>> MakeNeighbor(ArrayList<Bank> banks){
-        ArrayList<ArrayList<Integer>> neighbor = new ArrayList<>();
-        for(int i = 0; i < Constants.N; i++){
-            for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
-                neighbor.get(i).add(banks.get(i).neighborOut.get(j));
-            }
-            for(int j = 0; j < banks.get(i).neighborIn.size(); j++){
-                neighbor.get(i).add(banks.get(i).neighborIn.get(j));
-            }
-        }
-        return neighbor;
-    }
 
-    public static ArrayList<ArrayList<Integer>> MakeUndirectedGraph(int kind_of_network, Random rand){
+    private static ArrayList<ArrayList<Integer>> MakeUndirectedGraph(int kind_of_network, Random rand){
         ArrayList<ArrayList<Integer>> neighbor = new ArrayList<>();
         for(int i = 0; i < Constants.N; i++){
             neighbor.add(new ArrayList<>());
