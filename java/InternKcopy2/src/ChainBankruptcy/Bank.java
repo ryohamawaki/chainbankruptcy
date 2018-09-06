@@ -1,6 +1,5 @@
 package ChainBankruptcy;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Bank {
@@ -8,12 +7,8 @@ public class Bank {
 
     boolean status;
 
-    //int sum_link_out; // [TODO] これも削除 completed
-
     ArrayList<Integer> neighborOut = new ArrayList<Integer>();
     ArrayList<Integer> neighborIn = new ArrayList<Integer>();
-
-    //Map<Integer, Double> Omega = new HashMap<>(); // [TODO] これも削除 completed
 
     BalanceSheet bs;
 
@@ -40,8 +35,8 @@ public class Bank {
         BalanceSheet.MakeBorrowingAndLendingList(banks, Omega);
     }
 
-    public static void BuyOrSellMarketableAssets(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
-        MarketAsset.deal_marketable_assets(banks, markets, rand);
+    public static void BuyOrSellMarketableAssets(ArrayList<Bank> banks, MarketAsset market, Random rand){
+        MarketAsset.deal_marketable_assets(banks, market, rand);
     }
 
     public static void MakeNetwork(ArrayList<Bank> banks, int kind_of_network, Random rand){
@@ -282,11 +277,11 @@ public class Bank {
         }
     }
 
-    public static double[] CalculateExpectedReturn(ArrayList<MarketAsset> markets, Random rand) {
+    public static double[] CalculateExpectedReturn(MarketAsset market, Random rand) {
         // [TODO] 実装 & calculate_expected... の削除
         double[] expected_return = new double[(int) Constants.N];
-        ArrayList<Double> fundamental_price = markets.get(0).getPrice();        //理論価格の取得
-        ArrayList<Double> market_price = markets.get(0).getMarketPrice();    //市場価格の取得
+        ArrayList<Double> fundamental_price = market.getPrice();        //理論価格の取得
+        ArrayList<Double> market_price = market.getMarketPrice();    //市場価格の取得
         double fundamental_LogReturn = Constants.FCN.tauF * Math.log(fundamental_price.get(fundamental_price.size() - 1) / market_price.get(market_price.size() - 1));
 
         double chartMean_LogReturn = 0;
@@ -308,11 +303,11 @@ public class Bank {
         return expected_return;
     }
 
-    public boolean judgeVaR(ArrayList<MarketAsset> markets) {
+    public boolean judgeVaR(MarketAsset market) {
         // [TODO] ... remove judge_VaR completed
         Boolean varjudge = false;
-        ArrayList<Double> varlist = calculate_VaR(markets);
-        double VaRf = this.bs.EquityCapitalRatio(varlist);
+        double var = calculate_VaR(market);
+        double VaRf = this.bs.EquityCapitalRatio(var);
 
         if(VaRf >= Constants.VaR.Threshold){
             varjudge = true;
@@ -320,32 +315,27 @@ public class Bank {
         return varjudge;
     }
 
-    public static ArrayList<Double> calculate_VaR(ArrayList<MarketAsset> markets){
-        ArrayList<Double> VaRList = new ArrayList<Double>();
+    public static double calculate_VaR(MarketAsset market){
         ArrayList<Double> log_return_List = new ArrayList<Double>();
 
-        for(int i = 0; i < Constants.VaR.M; i++){
-            ArrayList<Double> price = markets.get(i).getMarketPrice();
-            for(int j = price.size() - 1; j > price.size() - Constants.VaR.tp - 1; j--) {
-                log_return_List.add(Math.log10(price.get(j) / price.get(j - 1)));
-            }
-            for(int j = 0; j < log_return_List.size(); j++){
-                Collections.sort(log_return_List);
-            }
-
-            VaRList.add(Math.pow(10, log_return_List.get(Constants.VaR.threshold_under5)));
+        ArrayList<Double> price = market.getMarketPrice();
+        for(int j = price.size() - 1; j > price.size() - Constants.VaR.tp - 1; j--) {
+            log_return_List.add(Math.log10(price.get(j) / price.get(j - 1)));
         }
-        return VaRList;
+        for(int j = 0; j < log_return_List.size(); j++){
+            Collections.sort(log_return_List);
+        }
+        return Math.pow(10, log_return_List.get(Constants.VaR.threshold_under5));
     }
 
     //☆VaR制約→売り買いで「買い」＝＋１、「売り」＝−１を返す。
-    public int BuyOrSell(ArrayList<MarketAsset> markets, Random rand){
+    public int BuyOrSell(MarketAsset market, Random rand){
         int plus_or_minus = 0;
             if(this.status){
-                    if(!this.judgeVaR(markets)){
+                    if(!this.judgeVaR(market)){
                         plus_or_minus = -1;
                     }else{
-                        if(judge_FCN(markets, rand).get(this.index)){
+                        if(judge_FCN(market, rand).get(this.index)){
                             plus_or_minus = 1;
                         }else{
                             plus_or_minus = -1;
@@ -354,12 +344,12 @@ public class Bank {
             }
         return plus_or_minus;
     }
-    public static ArrayList<Boolean> judge_FCN(ArrayList<MarketAsset> markets, Random rand){
+    public static ArrayList<Boolean> judge_FCN(MarketAsset market, Random rand){
         ArrayList<Boolean> each_judge_fcn = new ArrayList<Boolean>();		//結果を格納する配列
 
         for(int i = 0; i < Constants.N; i++){
             boolean judge_fcn = false;
-            double [] e_returns = CalculateExpectedReturn(markets, rand);
+            double [] e_returns = CalculateExpectedReturn(market, rand);
             if(e_returns[i] >= 0){
                 judge_fcn = true;
             }
@@ -368,8 +358,7 @@ public class Bank {
         return each_judge_fcn;
     }
 
-    public static void GoEachBankrupt(ArrayList<Bank> banks, ArrayList<MarketAsset> markets){
-        ArrayList<Double> varlist = calculate_VaR(markets);
+    public static void GoEachBankrupt(ArrayList<Bank> banks, MarketAsset market){
         System.out.print("倒産したのは: ");
 
         for(int i = 0; i < Constants.N; i++){
@@ -377,8 +366,7 @@ public class Bank {
                 continue;
             }
             //CAR<ThresholdまたはGap<0の時に銀行は倒産
-            if(!banks.get(i).judgeVaR(markets)){
-                double VaRf = banks.get(i).bs.EquityCapitalRatio(varlist);
+            if(!banks.get(i).judgeVaR(market)){
                 System.out.print(i + ", ");
                 GoBankrupt(banks, i);
             }
@@ -454,15 +442,14 @@ public class Bank {
         }
     }
 
-    public void InitializeBalanceSheet(ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand) {
-        this.bs.Initialize(neighborOut.size(), banks, sum_marketable_assets, markets, rand);
+    public void InitializeBalanceSheet(ArrayList<Bank> banks, double sum_marketable_assets, MarketAsset market, Random rand) {
+        this.bs.Initialize(neighborOut.size(), banks, sum_marketable_assets, market, rand);
     }
 
-    public void UpdateBalanceSheet(ArrayList<MarketAsset> markets){
-        ArrayList<Double> marketprice = markets.get(0).getMarketPrice();
+    public void UpdateBalanceSheet(MarketAsset market) {
+        ArrayList<Double> marketprice = market.getMarketPrice();
         if(status){
-            double e_update = 0.0;
-            e_update = CountUpNumStocks() * marketprice.get(marketprice.size() - 1) / Constants.VaR.stockmulti;
+            double e_update = CountUpNumStocks() * marketprice.get(marketprice.size() - 1) / Constants.VaR.stockmulti;
             bs.marketable_asset = e_update;	//外部資産はBS(8)：持ち株数 * Mp（最新時刻）：市場価格から算出
 
             double l_update = 0.0;
@@ -477,30 +464,19 @@ public class Bank {
             }
             bs.borrowing_money = b_update;
 
-            double c_update = 0.0;
             double gap = -(bs.cash + bs.marketable_asset + bs.lending_money
                     - bs.equity_capital - bs.account - bs.borrowing_money);
-            c_update = bs.equity_capital - gap + 0.0001;   //0.0001は浮動小数点対策
+            double c_update = bs.equity_capital - gap + 0.0001;   //0.0001は浮動小数点対策
 
             bs.equity_capital = c_update;
 
-            double a_update = 0.0;
-            a_update = Math.max(bs.cash + bs.marketable_asset + bs.lending_money,
+            double a_update = Math.max(bs.cash + bs.marketable_asset + bs.lending_money,
                     bs.equity_capital + bs.account + bs.borrowing_money);	//資産a=max(外部資産e+銀行間貸出l, 自己資本c+預金d+銀行間借入b)
             bs.asset_sum = a_update;
         }
     }
 
     public int CountUpNumStocks(){
-        int sum = 0;
-        for(int i = 0; i < Constants.VaR.M; i++){
-            sum += bs.num_stocks[i];
-        }
-        return sum;
-    }
-
-    public double CalculateGap() {
-        return -(bs.cash + bs.marketable_asset + bs.lending_money
-                - bs.equity_capital - bs.account - bs.borrowing_money);
+        return bs.num_stocks;
     }
 }

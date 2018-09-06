@@ -1,7 +1,5 @@
 package ChainBankruptcy;
 
-import sun.jvm.hotspot.oops.Mark;
-
 import java.util.Random;
 import java.util.ArrayList;
 
@@ -14,11 +12,11 @@ public class Main {
             ArrayList<Integer> numbers_rupt = new ArrayList<Integer>();
 
             ArrayList<Bank> banks = Bank.InitializeInterbankNetwork(rand);
-            ArrayList<MarketAsset> markets = MarketAsset.MakeMarketAssets(rand);
+            MarketAsset market = MarketAsset.MakeMarketAssets(rand);
             Bank.InitializeFinancing(banks, sum_marketable_assets, rand);
-            for(Bank b: banks) { b.InitializeBalanceSheet(banks, sum_marketable_assets, markets, rand); }
+            for(Bank b: banks) { b.InitializeBalanceSheet(banks, sum_marketable_assets, market, rand); }
 
-            BalanceSheet.OutputBalanceSheet(banks, markets);
+            BalanceSheet.OutputBalanceSheet(banks, market);
 
             for(int t = 0; t <= Constants.time; t++){
                 if(t == Constants.rupttime){
@@ -27,15 +25,15 @@ public class Main {
                         Bank.GoBankrupt(banks, ID);
                     }
                 }
-                Bank.BuyOrSellMarketableAssets(banks, markets, rand);
+                Bank.BuyOrSellMarketableAssets(banks, market, rand);
 
-                MarketAsset.update_fundamental_price(markets, rand);
+                MarketAsset.update_fundamental_price(market, rand);
 
-                for(Bank b: banks){ b.UpdateBalanceSheet(markets);}
+                for(Bank b: banks){ b.UpdateBalanceSheet(market);}
 
                 // BalanceSheet.OutputBalanceSheet(banks, markets);
 
-                Bank.GoEachBankrupt(banks, markets);
+                Bank.GoEachBankrupt(banks, market);
             }
             int number_bankrupt = Bank.countrupt(banks);
             numbers_rupt.add(number_bankrupt);

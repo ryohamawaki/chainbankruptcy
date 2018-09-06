@@ -14,14 +14,11 @@ public class BalanceSheet {
     double account;          // 預金
     double lending_money;    // 貸し出し
     double gamma;            // 貸し出し比率
-    double EquityCapitalRatio(ArrayList<Double> varlist) {
-        double sum = 0.0;
-        for (int i = 0; i < Constants.VaR.M; i++) {
-            sum += (Math.abs(num_stocks[i]) * varlist.get(i));
-        }
+    double EquityCapitalRatio(double var) {
+        double sum = Math.abs(num_stocks) * var;
         return Constants.VaR.Control * equity_capital / sum;
     }
-    int[] num_stocks = new int[Constants.VaR.M]; // 持ち株数
+    int num_stocks; // 持ち株数
     double cash;             // 現金
 
 
@@ -65,9 +62,9 @@ public class BalanceSheet {
         }
     }
 
-    public void MakeBalanceSheet(int outDegree, Double sum_borrowing_surplus, Double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand){
+    public void MakeBalanceSheet(int outDegree, Double sum_borrowing_surplus, Double sum_marketable_assets, MarketAsset market, Random rand){
         double sum_lending_money = (Constants.BalanceSheet.gamma_whole / (1.0 - Constants.BalanceSheet.gamma_whole)) * sum_marketable_assets;
-        ArrayList<Double> price_market = markets.get(0).getMarketPrice();
+        ArrayList<Double> price_market = market.getMarketPrice();
 
         double e_temp = Math.max(borrowing_money - lending_money, 0.0)
                 + (sum_marketable_assets - sum_borrowing_surplus)
@@ -77,16 +74,13 @@ public class BalanceSheet {
         double e = price_market.get(price_market.size() - 1) * number_stockInt / Constants.VaR.stockmulti;
 
         marketable_asset = e;
-        num_stocks[0] = number_stockInt;
+        num_stocks = number_stockInt;
 
         account = outDegree * (30 + 10 * rand.nextDouble());
 
         double car = 0.6 + 0.1 * rand.nextDouble();
 
-        double sum = 0.0;
-        for (int i = 0; i < Constants.VaR.M; i++) {
-            sum += (Math.abs(num_stocks[i]) * Bank.calculate_VaR(markets).get(i));
-        }
+        double sum = num_stocks * Bank.calculate_VaR(market);
         double c = car * (sum / Constants.VaR.Control);
 
         equity_capital = c;
@@ -122,8 +116,8 @@ public class BalanceSheet {
         banks.get(id).bs.gamma = 0.0;
         banks.get(id).bs.cash = 0.0;
     }
-    public static void OutputBalanceSheet(ArrayList<Bank> banks, ArrayList<MarketAsset> markets){
-        ArrayList<Double> varlist = Bank.calculate_VaR(markets);
+    public static void OutputBalanceSheet(ArrayList<Bank> banks, MarketAsset market){
+        double var = Bank.calculate_VaR(market);
         for(int i = 0; i < Constants.N; i++){
             System.out.println(i + "の総資産　　：" + banks.get(i).bs.asset_sum);
             System.out.println(i + "の市場性資産：" + banks.get(i).bs.marketable_asset);
@@ -132,14 +126,14 @@ public class BalanceSheet {
             System.out.println(i + "の自己資本　：" + banks.get(i).bs.equity_capital);
             System.out.println(i + "の預金　　　：" + banks.get(i).bs.account);
             System.out.println(i + "の借入　　　：" + banks.get(i).bs.borrowing_money);
-            System.out.println(i + "の持株数　　：" + banks.get(i).bs.num_stocks[0]);
-            System.out.println(i + "のVaRf　　 ：" + banks.get(i).bs.EquityCapitalRatio(varlist)  );
+            System.out.println(i + "の持株数　　：" + banks.get(i).bs.num_stocks);
+            System.out.println(i + "のVaRf　　 ：" + banks.get(i).bs.EquityCapitalRatio(var)  );
             System.out.println();
         }
     }
 
-    public void Initialize(int outDegree, ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand) {
+    public void Initialize(int outDegree, ArrayList<Bank> banks, double sum_marketable_assets, MarketAsset market, Random rand) {
         double sum_borrowing_surplus = CalculateSurplass(banks);
-        MakeBalanceSheet(outDegree, sum_borrowing_surplus, sum_marketable_assets, markets, rand);
+        MakeBalanceSheet(outDegree, sum_borrowing_surplus, sum_marketable_assets, market, rand);
     }
 }

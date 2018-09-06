@@ -15,25 +15,19 @@ public class Constants {
         public static final double r_f = 0.02;                    //リスクフリーレート
         public static final double delta_t = 0.004;                //Δt
         public static final double sigma = 0.25;                    //ボラティリティ
-        public static final int M = 1;                        //外部資産数
         public static final double Threshold = 0.04;                    //VaR制約の閾値
-        public static final double ThresholdF = 0.08;                    //資金繰りの時のVaR制約の閾値
         public static final int stockmulti = 20;                    //株価を何倍に換算するか　＝　外部資産の与える影響の制御
         public static final double Control = 0.08 * stockmulti / 20;            //VaR制約の任意の係数
         public static final int threshold_under5 = tp * 5 / 100;
     }
 
-    public static final int divnum = 10;						//何分割にして他の銀行から資金繰りするか
-
     public static final int time = 10;
     public static final int rupttime = 1;
 
     public static class Args{
-        public static final boolean output = false;
         public static final int trial_num = 1;
         public static final int start_index = 0;
         public static final double coefficient_price_fluctuation = 0.5;
-        public static final double p_large_to_smal = 0.5;
         public static final int kind_of_network = 1;
         public static final int num_of_link_scalefree = 8;
         public static final int num_of_largelink = 20;
