@@ -65,7 +65,7 @@ public class BalanceSheet {
         }
     }
 
-    public void MakeBalanceSheet(Bank bank, Double sum_borrowing_surplus, Double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand){
+    public void MakeBalanceSheet(int outDegree, Double sum_borrowing_surplus, Double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand){
         double sum_lending_money = (Constants.BalanceSheet.gamma_whole / (1.0 - Constants.BalanceSheet.gamma_whole)) * sum_marketable_assets;
         ArrayList<Double> price_market = markets.get(0).getMarketPrice();
 
@@ -73,9 +73,9 @@ public class BalanceSheet {
             double number_stock = 0.0;
         int number_stockInt = 0;
 
-        e = Math.max(bank.bs.borrowing_money - bank.bs.lending_money, 0.0)
+        e = Math.max(borrowing_money - lending_money, 0.0)
                 + (sum_marketable_assets - sum_borrowing_surplus)
-                * (bank.bs.lending_money / sum_lending_money);
+                * (lending_money / sum_lending_money);
         number_stock = e * Constants.VaR.stockmulti / price_market.get(price_market.size() - 1);
         for (int j = 0; j < number_stock; j++) {
             number_stockInt++;
@@ -83,12 +83,10 @@ public class BalanceSheet {
         e = 0.0;
         e = price_market.get(price_market.size() - 1) * number_stockInt / Constants.VaR.stockmulti;
 
-        bank.bs.marketable_asset = e;
-        bank.bs.num_stocks[0] = number_stockInt;
+        marketable_asset = e;
+        num_stocks[0] = number_stockInt;
 
-
-        double d = bank.neighborOut.size() * (30 + 10 * rand.nextDouble());bank.bs.account = d;
-
+        account = outDegree * (30 + 10 * rand.nextDouble());
 
         double car = 0.6 + 0.1 * rand.nextDouble();
 
@@ -98,17 +96,14 @@ public class BalanceSheet {
         }
         double c = car * (sum / Constants.VaR.Control);
 
-        bank.bs.equity_capital = c;
+        equity_capital = c;
 
-        double a = Math.max(bank.bs.cash + bank.bs.marketable_asset + bank.bs.lending_money, bank.bs.equity_capital + bank.bs.account + bank.bs.borrowing_money);
-        bank.bs.asset_sum = a;
+        double a = Math.max(cash + marketable_asset + lending_money, equity_capital + account + borrowing_money);
+        asset_sum = a;
 
-        double gamma = bank.bs.lending_money / bank.bs.asset_sum;
-        bank.bs.gamma = gamma;
+        gamma = lending_money / asset_sum;
 
-        double money = bank.bs.equity_capital + bank.bs.account + bank.bs.borrowing_money - (bank.bs.marketable_asset + bank.bs.lending_money);
-        bank.bs.cash = money;
-
+        cash = equity_capital + account + borrowing_money - (marketable_asset + lending_money);
     }
 
     public static double CalculateSurplass(ArrayList<Bank> banks){
@@ -150,8 +145,8 @@ public class BalanceSheet {
         }
     }
 
-    public void Initialize(Bank bank, ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand) {
+    public void Initialize(int outDegree, ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand) {
         double sum_borrowing_surplus = CalculateSurplass(banks);
-        MakeBalanceSheet(bank, sum_borrowing_surplus, sum_marketable_assets, markets, rand);
+        MakeBalanceSheet(outDegree, sum_borrowing_surplus, sum_marketable_assets, markets, rand);
     }
 }

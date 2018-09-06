@@ -455,8 +455,7 @@ public class Bank {
     }
 
     public void InitializeBalanceSheet(ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand) {
-        this.bs.Initialize(this, banks, sum_marketable_assets, markets, rand);
-        // [TODO]....completed
+        this.bs.Initialize(neighborOut.size(), banks, sum_marketable_assets, markets, rand);
     }
 
     public void UpdateBalanceSheet(ArrayList<MarketAsset> markets){
