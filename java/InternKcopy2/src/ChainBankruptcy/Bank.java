@@ -386,17 +386,6 @@ public class Bank {
         banks.get(ruptID).bs.Clear();
     }
 
-    public static int countrupt(ArrayList<Bank> banks){
-        int ruptnum = 0;
-        for(int i = 0; i < Constants.N; i++){
-            if(!banks.get(i).status){
-                ruptnum++;
-            }
-        }
-        return ruptnum;
-
-    }
-
     public static void OutputNetwork(ArrayList<Bank> banks){
         for (int i = 0; i < Constants.N; i++){
             for (int j = 0; j < banks.get(i).neighborOut.size(); j++){

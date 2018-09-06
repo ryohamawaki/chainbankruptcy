@@ -34,8 +34,10 @@ public class Main {
 
                 Bank.GoEachBankrupt(banks, market);
             }
-            int number_bankrupt = Bank.countrupt(banks);
-            numbers_rupt.add(number_bankrupt);
+
+            int num_bankrupted = 0;
+            for(Bank b: banks) { if(!b.status) { num_bankrupted += 1; } }
+            numbers_rupt.add(num_bankrupted);
 
             System.out.println(numbers_rupt.get(0));
         }
