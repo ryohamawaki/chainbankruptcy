@@ -341,21 +341,23 @@ public class Bank {
         return each_judge_fcn;
     }
 
-    public static void GoEachBankrupt(ArrayList<Bank> banks, MarketAsset market){
+    public static void GoEachBankrupt(ArrayList<Bank> banks, MarketAsset market) {
         System.out.print("倒産したのは: ");
 
-        for(int i = 0; i < Constants.N; i++){
-            if(banks.get(i).status == false){
+        ArrayList<Integer> bankrupted = new ArrayList<>();
+        for (int i = 0; i < Constants.N; i++) {
+            if (banks.get(i).status == false) {
                 continue;
             }
             //CAR<ThresholdまたはGap<0の時に銀行は倒産
-            if(!banks.get(i).judgeVaR(market)){
+            if (!banks.get(i).judgeVaR(market)) {
                 System.out.print(i + ", ");
-                GoBankrupt(banks, i);
+                bankrupted.add(i);
             }
-            //if(bankArray(i).Gap < 0){
-            //bankrupt(bankArray, i);
-            //}
+        }
+
+        for (Integer i : bankrupted) {
+            GoBankrupt(banks, i);
         }
         System.out.println();
     }
