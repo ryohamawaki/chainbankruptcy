@@ -107,10 +107,6 @@ public class BalanceSheet {
         return sum_borrowing_surplus;
     }
 
-
-        //System.out.println("sum_lending:" + sum_lending);
-        //System.out.println("sum_borrowing" + sum_borrowing);
-
     public void Clear(){
         asset_sum = 0.0;
         marketable_asset = 0.0;
@@ -122,18 +118,18 @@ public class BalanceSheet {
         cash = 0.0;
     }
 
-    public static void OutputBalanceSheet(ArrayList<Bank> banks, MarketAsset market){
+    public void OutputBalanceSheet(MarketAsset market){
         double var = Bank.calculate_VaR(market);
         for(int i = 0; i < Constants.N; i++){
-            System.out.println(i + "の総資産　　：" + banks.get(i).bs.asset_sum);
-            System.out.println(i + "の市場性資産：" + banks.get(i).bs.marketable_asset);
-            System.out.println(i + "の貸出     ：" + banks.get(i).bs.lending_money);
-            System.out.println(i + "の現金　　　：" + banks.get(i).bs.cash);
-            System.out.println(i + "の自己資本　：" + banks.get(i).bs.equity_capital);
-            System.out.println(i + "の預金　　　：" + banks.get(i).bs.account);
-            System.out.println(i + "の借入　　　：" + banks.get(i).bs.borrowing_money);
-            System.out.println(i + "の持株数　　：" + banks.get(i).bs.num_stocks);
-            System.out.println(i + "のVaRf　　 ：" + banks.get(i).bs.EquityCapitalRatio(var)  );
+            System.out.println(i + "の総資産　　：" + asset_sum);
+            System.out.println(i + "の市場性資産：" + marketable_asset);
+            System.out.println(i + "の貸出     ：" + lending_money);
+            System.out.println(i + "の現金　　　：" + cash);
+            System.out.println(i + "の自己資本　：" + equity_capital);
+            System.out.println(i + "の預金　　　：" + account);
+            System.out.println(i + "の借入　　　：" + borrowing_money);
+            System.out.println(i + "の持株数　　：" + num_stocks);
+            System.out.println(i + "のVaRf　　 ：" + EquityCapitalRatio(var)  );
             System.out.println();
         }
     }

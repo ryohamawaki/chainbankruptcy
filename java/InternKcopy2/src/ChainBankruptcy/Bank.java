@@ -1,6 +1,5 @@
 package ChainBankruptcy;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Bank {
@@ -392,5 +391,9 @@ public class Bank {
 
     public int CountUpNumStocks(){
         return bs.num_stocks;
+    }
+
+    public void OutputBalanceSheet(MarketAsset market) {
+        bs.OutputBalanceSheet(market);
     }
 }

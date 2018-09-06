@@ -86,9 +86,4 @@ public class MarketAsset {
         double new_price = latest_price + Constants.VaR.r_f * latest_price * Constants.VaR.delta_t + Constants.VaR.sigma * latest_price * rand.nextGaussian() * Math.sqrt(Constants.VaR.delta_t);	//確率差分方程式で理論価格を計算
         fundamental_price.add(new_price);
     }
-
-    public static void OutputMarketPrice(ArrayList<MarketAsset> markets){
-        System.out.println(markets.get(0).getMarketPrice());
-    }
-
 }

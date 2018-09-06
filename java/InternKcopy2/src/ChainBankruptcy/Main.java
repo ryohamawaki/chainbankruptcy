@@ -16,7 +16,7 @@ public class Main {
 
             for(Bank b: banks) { b.InitializeBalanceSheet(banks, sum_marketable_assets, market, rand); }
 
-            BalanceSheet.OutputBalanceSheet(banks, market);
+            for(Bank b: banks) { b.OutputBalanceSheet(market); }
 
             for(int t = 0; t <= Constants.time; t++){
                 if(t == Constants.rupttime){
