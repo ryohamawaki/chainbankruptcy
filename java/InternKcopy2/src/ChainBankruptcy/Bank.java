@@ -267,7 +267,7 @@ public class Bank {
     public static double[] CalculateExpectedReturn(MarketAsset market, Random rand) {
         // [TODO] 実装 & calculate_expected... の削除
         double[] expected_return = new double[(int) Constants.N];
-        ArrayList<Double> fundamental_price = market.getPrice();        //理論価格の取得
+        ArrayList<Double> fundamental_price = market.getFundamental_price();        //理論価格の取得
         ArrayList<Double> market_price = market.getMarketPrice();    //市場価格の取得
         double fundamental_LogReturn = Constants.FCN.tauF * Math.log(fundamental_price.get(fundamental_price.size() - 1) / market_price.get(market_price.size() - 1));
 

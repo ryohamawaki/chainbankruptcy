@@ -1,19 +1,18 @@
 package ChainBankruptcy;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 public class MarketAsset {
-    ArrayList<Double> price = new ArrayList<Double>();
-    ArrayList<Double> marketprice = new ArrayList<Double>();
+    ArrayList<Double> fundamental_price = new ArrayList<Double>();
+    ArrayList<Double> market_price = new ArrayList<Double>();
     double return_average;
     double return_sigma;
 
-    public void setPrice(ArrayList<Double> newPrice){
-        this.price = newPrice;
+    public void setFundamental_price(ArrayList<Double> newPrice){
+        this.fundamental_price = newPrice;
     }
     public void setMarketPrice(ArrayList<Double> newPrice){
-        this.marketprice = newPrice;
+        this.market_price = newPrice;
     }
     public void setR_avg(double newR_avg){
         this.return_average = newR_avg;
@@ -22,11 +21,11 @@ public class MarketAsset {
         this.return_sigma = newSigma_m;
     }
 
-    public ArrayList<Double> getPrice(){
-        return this.price;
+    public ArrayList<Double> getFundamental_price(){
+        return this.fundamental_price;
     }
     public ArrayList<Double> getMarketPrice(){
-        return this.marketprice;
+        return this.market_price;
     }
     public static MarketAsset MakeMarketAssets(Random rand){
         return NewMarketAsset(rand);
@@ -82,7 +81,7 @@ public class MarketAsset {
             sigma_m = Math.sqrt(sigma_m/num2);		//その平均（分散）の平方根を求める
         }
         //ma.setFirstPrice(firstPrice);
-        ma.setPrice(price);
+        ma.setFundamental_price(price);
         ma.setMarketPrice(MarketPrice);
         ma.setR_avg(r_avg);
         ma.setSigma_m(sigma_m);
@@ -134,11 +133,11 @@ public class MarketAsset {
     }
 
     private double getLatestMarketPrice() {
-        return marketprice.get(marketprice.size()-1);
+        return market_price.get(market_price.size()-1);
     }
 
     public static void update_fundamental_price(MarketAsset market, Random rand){
-        ArrayList<Double> fundamentalprice = market.getPrice();
+        ArrayList<Double> fundamentalprice = market.getFundamental_price();
         double latest_price = fundamentalprice.get(fundamentalprice.size()-1);
         double new_price = latest_price + Constants.VaR.r_f * latest_price * Constants.VaR.delta_t + Constants.VaR.sigma * latest_price * rand.nextGaussian() * Math.sqrt(Constants.VaR.delta_t);	//確率差分方程式で理論価格を計算
         fundamentalprice.add(new_price);
