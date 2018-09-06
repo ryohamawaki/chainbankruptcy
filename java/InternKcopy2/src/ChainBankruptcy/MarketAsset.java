@@ -77,7 +77,7 @@ public class MarketAsset {
 
     }
 
-    private double getLatestMarketPrice() {
+    public double getLatestMarketPrice() {
         return market_price.get(market_price.size()-1);
     }
 

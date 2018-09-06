@@ -28,7 +28,7 @@ public class Main {
                 market.DealMarketAssets(banks, rand);
                 market.UpdateFundamentalPrice(rand);
 
-                for(Bank b: banks){ b.UpdateBalanceSheet(market);}
+                for(Bank b: banks){ b.UpdateBalanceSheet(market.getLatestMarketPrice() );}
 
                 // BalanceSheet.OutputBalanceSheet(banks, markets);
 

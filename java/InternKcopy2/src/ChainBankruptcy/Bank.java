@@ -429,21 +429,20 @@ public class Bank {
         this.bs.Initialize(neighborOut.size(), banks, sum_marketable_assets, market, rand);
     }
 
-    public void UpdateBalanceSheet(MarketAsset market) {
-        ArrayList<Double> marketprice = market.getMarketPrice();
+    public void UpdateBalanceSheet(double latest_market_price) {
         if(status){
-            double e_update = CountUpNumStocks() * marketprice.get(marketprice.size() - 1) / Constants.VaR.stockmulti;
+            double e_update = CountUpNumStocks() * latest_market_price / Constants.VaR.stockmulti;
             bs.marketable_asset = e_update;	//外部資産はBS(8)：持ち株数 * Mp（最新時刻）：市場価格から算出
 
             double l_update = 0.0;
-            for(int i = 0; i < neighborOut.size(); i++){
-                l_update += List_lending.get(neighborOut.get(i));	//貸出額はLendListの総和から算出
+            for(Map.Entry<Integer,Double> entry: List_lending.entrySet()) {
+                l_update += entry.getValue(); //貸出額はLendListの総和から算出
             }
             bs.lending_money = l_update;
 
             double b_update = 0.0;
-            for(int i = 0; i < neighborIn.size(); i++){
-                b_update += List_borrowing.get(neighborIn.get(i));	//借入額はBorrowListの総和から算出
+            for(Map.Entry<Integer,Double> entry: List_borrowing.entrySet()) {
+                b_update += entry.getValue(); //貸出額はLendListの総和から算出
             }
             bs.borrowing_money = b_update;
 
