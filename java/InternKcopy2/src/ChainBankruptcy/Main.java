@@ -13,7 +13,11 @@ public class Main {
 
             ArrayList<Bank> banks = Bank.InitializeInterbankNetwork(rand);
             ArrayList<MarketAsset> markets = MarketAsset.MakeMarketAssets(rand);
+
+            Bank.InitializeFinancing(banks, sum_marketable_assets, rand);
             for(Bank b: banks) { b.InitializeBalanceSheet(banks, sum_marketable_assets, markets, rand); }
+
+            BalanceSheet.OutputBalanceSheet(banks, markets);
 
             for(int t = 0; t <= Constants.time; t++){
                 if(t == Constants.rupttime){

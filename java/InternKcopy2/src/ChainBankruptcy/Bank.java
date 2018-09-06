@@ -34,6 +34,12 @@ public class Bank {
         MakeNetwork(banks, Constants.Args.kind_of_network, rand);
         return banks;
     }
+    public static void InitializeFinancing(ArrayList<Bank> banks, Double sum_marketable_assets, Random rand) {
+        ArrayList<Map<Integer, Double>> Omega = BalanceSheet.MakeOmega(banks, sum_marketable_assets, rand);
+        for(Bank b: banks){
+            BalanceSheet.MakeBorrowingAndLendingList(b, banks, Omega);
+        }
+    }
 
     public static void BuyOrSellMarketableAssets(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){
         MarketAsset.deal_marketable_assets(banks, markets, rand);
@@ -450,7 +456,6 @@ public class Bank {
     }
 
     public void InitializeBalanceSheet(ArrayList<Bank> banks, double sum_marketable_assets, ArrayList<MarketAsset> markets, Random rand) {
-        this.bs = new BalanceSheet();
         this.bs.Initialize(this, banks, sum_marketable_assets, markets, rand);
         // [TODO]....completed
     }

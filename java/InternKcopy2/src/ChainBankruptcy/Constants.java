@@ -19,7 +19,7 @@ public class Constants {
         public static final double Threshold = 0.04;                    //VaR制約の閾値
         public static final double ThresholdF = 0.08;                    //資金繰りの時のVaR制約の閾値
         public static final int stockmulti = 20;                    //株価を何倍に換算するか　＝　外部資産の与える影響の制御
-        public static final double Control = 0.2 * stockmulti / 20;            //VaR制約の任意の係数
+        public static final double Control = 0.08 * stockmulti / 20;            //VaR制約の任意の係数
         public static final int threshold_under5 = tp * 5 / 100;
     }
 
