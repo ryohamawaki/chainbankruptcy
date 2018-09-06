@@ -32,7 +32,7 @@ public class Main {
 
                 for(Bank b: banks){ b.UpdateBalanceSheet(markets);}
 
-                BalanceSheet.OutputBalanceSheet(banks, markets);
+                // BalanceSheet.OutputBalanceSheet(banks, markets);
 
                 Bank.GoEachBankrupt(banks, markets);
             }

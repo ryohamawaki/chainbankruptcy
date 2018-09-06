@@ -24,6 +24,7 @@ public class Bank {
     public Bank(int id, boolean bankstatus){
         index = id;
         status = bankstatus;
+        bs = new BalanceSheet();
     }
 
     public static ArrayList<Bank> InitializeInterbankNetwork(Random rand){
@@ -36,9 +37,7 @@ public class Bank {
     }
     public static void InitializeFinancing(ArrayList<Bank> banks, Double sum_marketable_assets, Random rand) {
         ArrayList<Map<Integer, Double>> Omega = BalanceSheet.MakeOmega(banks, sum_marketable_assets, rand);
-        for(Bank b: banks){
-            BalanceSheet.MakeBorrowingAndLendingList(b, banks, Omega);
-        }
+        BalanceSheet.MakeBorrowingAndLendingList(banks, Omega);
     }
 
     public static void BuyOrSellMarketableAssets(ArrayList<Bank> banks, ArrayList<MarketAsset> markets, Random rand){

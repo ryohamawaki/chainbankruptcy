@@ -48,29 +48,20 @@ public class BalanceSheet {
         return omega;
     }
 
-    public static void MakeBorrowingAndLendingList(Bank bank, ArrayList<Bank> banks,ArrayList<Map<Integer, Double>> Omega){
-        double[] borrowing_money_count = new double[(int)Constants.N];
+    public static void MakeBorrowingAndLendingList(ArrayList<Bank> banks,ArrayList<Map<Integer, Double>> Omega){
         for(int i = 0; i < Constants. N; i++){
-            for(int j = 0; j < banks.get(i).neighborOut.size(); j++){
-                int k = banks.get(i).neighborOut.get(j);
-                borrowing_money_count[k] += Omega.get(i).get(k);
+            Map<Integer,Double> lending_list = Omega.get(i);
+            for(Map.Entry<Integer,Double> kv: lending_list.entrySet() ) {
+                int j = kv.getKey();
+                double amount = kv.getValue();
+                Bank bi = banks.get(i);
+                Bank bj = banks.get(j);
+                bj.bs.borrowing_money += amount;
+                bj.List_borrowing.put(i, amount);
+
+                bi.bs.lending_money += amount;
+                bi.List_lending.put(j, amount);
             }
-        }
-        bank.bs = new BalanceSheet();
-        bank.bs.borrowing_money = borrowing_money_count[bank.index];
-
-        double lending_money_count = 0.0;
-        for (int i = 0; i < bank.neighborOut.size(); i++) {
-            lending_money_count += Omega.get(bank.index).get(bank.neighborOut.get(i));
-        }
-
-        bank.bs.lending_money = lending_money_count;
-
-        for(int j = 0; j < bank.neighborOut.size(); j++){
-            int k = bank.neighborOut.get(j);
-            double get = Omega.get(bank.index).get(k);
-            bank.List_lending.put(k, get);
-            banks.get(k).List_borrowing.put(bank.index, get);
         }
     }
 
