@@ -105,17 +105,17 @@ public class BalanceSheet {
         //System.out.println("sum_lending:" + sum_lending);
         //System.out.println("sum_borrowing" + sum_borrowing);
 
-
-    public static void isClear(ArrayList<Bank> banks, int id){
-        banks.get(id).bs.asset_sum = 0.0;
-        banks.get(id).bs.marketable_asset = 0.0;
-        banks.get(id).bs.borrowing_money = 0.0;
-        banks.get(id).bs.equity_capital = 0.0;
-        banks.get(id).bs.account = 0.0;
-        banks.get(id).bs.lending_money = 0.0;
-        banks.get(id).bs.gamma = 0.0;
-        banks.get(id).bs.cash = 0.0;
+    public void Clear(){
+        asset_sum = 0.0;
+        marketable_asset = 0.0;
+        borrowing_money = 0.0;
+        equity_capital = 0.0;
+        account = 0.0;
+        lending_money = 0.0;
+        gamma = 0.0;
+        cash = 0.0;
     }
+
     public static void OutputBalanceSheet(ArrayList<Bank> banks, MarketAsset market){
         double var = Bank.calculate_VaR(market);
         for(int i = 0; i < Constants.N; i++){

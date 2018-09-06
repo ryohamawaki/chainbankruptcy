@@ -361,51 +361,29 @@ public class Bank {
         }
         System.out.println();
     }
+
     public static void GoBankrupt(ArrayList<Bank> banks, int ruptID){
-        //ArrayList<ArrayList<Integer>> neighbor = MakeNeighbor(banks);
         banks.get(ruptID).status = false;		//状態を１→０に変える
 
         //貸し借り表の値を全て０にする
-        for(int i = 0; i < banks.get(ruptID).neighborIn.size(); i++){
-            //BorrowListを０にする
-            banks.get(ruptID).List_borrowing.remove(banks.get(ruptID).neighborIn.get(i));
-            banks.get(ruptID).List_borrowing.put(banks.get(ruptID).neighborIn.get(i), 0.0);
+        Bank bi = banks.get(ruptID);
+        for(Map.Entry<Integer,Double> entry: bi.List_borrowing.entrySet()) {
+            int j = entry.getKey();
+            entry.setValue(0.0);
             //倒産した銀行に貸出していた銀行のLendListを０にする
-            banks.get(banks.get(ruptID).neighborIn.get(i)).List_lending.remove(ruptID);
-            banks.get(banks.get(ruptID).neighborIn.get(i)).List_lending.put(ruptID, 0.0);
+            Bank bj = banks.get(j);
+            bj.List_lending.put(ruptID, 0.0);
         }
-
-        for(int i = 0; i < banks.get(ruptID).neighborOut.size(); i++){
-            //LendListを０にする
-            banks.get(ruptID).List_lending.remove(banks.get(ruptID).neighborOut.get(i));
-            banks.get(ruptID).List_lending.put(banks.get(ruptID).neighborOut.get(i), 0.0);
-            //倒産した銀行から借入れていた銀行のBorrowListを０にする
-            banks.get(banks.get(ruptID).neighborOut.get(i)).List_borrowing.remove(ruptID);
-            banks.get(banks.get(ruptID).neighborOut.get(i)).List_borrowing.put(ruptID, 0.0);
-        }
-        for(int i = 0; i < banks.get(ruptID).neighborOut.size(); i++){
-            //NeighborからruptIDを外す→neighborOutもしくはneighborInから消去
-            /*int n = neighbor.get(ruptID).get(i);
-            // System.err.println("" + i + " " + ruptID + " " + n);
-            Bank bank_n = banks.get(n);
-            bank_n.neighbor.remove(bank_n.neighbor.indexOf(ruptID));
-            */
-            int n_out = banks.get(ruptID).neighborOut.get(i);
-            Bank bank_n = banks.get(n_out);
-            bank_n.neighborIn.remove(bank_n.neighborIn.indexOf(ruptID));
-        }
-        for(int i = 0; i < banks.get(ruptID).neighborIn.size(); i++){
-            int n_in = banks.get(ruptID).neighborIn.get(i);
-            Bank bank_n = banks.get(n_in);
-            bank_n.neighborOut.remove(bank_n.neighborOut.indexOf(ruptID));
+        for(Map.Entry<Integer,Double> entry: bi.List_lending.entrySet()) {
+            int j = entry.getKey();
+            entry.setValue(0.0);
+            //倒産した銀行に貸出していた銀行のLendListを０にする
+            Bank bj = banks.get(j);
+            bj.List_borrowing.put(ruptID, 0.0);
         }
         //BSの値を全て０にする
         //BalanceSheet.OutputBalanceSheet(banks);
-        BalanceSheet.isClear(banks, ruptID);
-    }
-    public void GoBankrupt() {
-        // [TODO] .... 全体をいじるので難しい
-
+        banks.get(ruptID).bs.Clear();
     }
 
     public static int countrupt(ArrayList<Bank> banks){
