@@ -304,7 +304,7 @@ public class Bank {
     }
 
     public static void GoEachBankrupt(ArrayList<Bank> banks, MarketAsset market) {
-        System.out.print("倒産したのは: ");
+        //System.out.print("倒産したのは: ");
 
         ArrayList<Integer> bankrupted = new ArrayList<>();
         for (int i = 0; i < Constants.N; i++) {
@@ -313,7 +313,7 @@ public class Bank {
             }
             //CAR<ThresholdまたはGap<0の時に銀行は倒産
             if (!banks.get(i).judgeVaR(market)) {
-                System.out.print(i + ", ");
+                //System.out.print(i + ", ");
                 bankrupted.add(i);
             }
         }
@@ -321,7 +321,7 @@ public class Bank {
         for (Integer i : bankrupted) {
             GoBankrupt(banks, i);
         }
-        System.out.println();
+        //System.out.println();
     }
 
     public static void GoBankrupt(ArrayList<Bank> banks, int ruptID){
@@ -395,5 +395,9 @@ public class Bank {
 
     public void OutputBalanceSheet(MarketAsset market) {
         bs.OutputBalanceSheet(market);
+    }
+
+    public void OutputBalanceSheetForR(MarketAsset market) {
+        bs.OutputBalanceSheetForR(market);
     }
 }

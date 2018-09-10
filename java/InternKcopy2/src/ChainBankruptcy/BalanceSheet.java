@@ -132,6 +132,23 @@ public class BalanceSheet {
             System.out.println();
     }
 
+    public ArrayList<Double> OutputBalanceSheetForR(MarketAsset market){
+        ArrayList<Double> bs = new ArrayList<>();
+        double var = Bank.calculate_VaR(market);
+        bs.add(asset_sum);
+        bs.add(marketable_asset);
+        bs.add(lending_money);
+        bs.add(cash);
+        bs.add(equity_capital);
+        bs.add(account);
+        bs.add(borrowing_money );
+        bs.add((double)num_stocks);
+        bs.add(EquityCapitalRatio(var));
+
+        return bs;
+    }
+
+
     public void Initialize(int outDegree, ArrayList<Bank> banks, double sum_marketable_assets, MarketAsset market, Random rand) {
         double sum_borrowing_surplus = CalculateSurplass(banks);
         MakeBalanceSheet(outDegree, sum_borrowing_surplus, sum_marketable_assets, market, rand);

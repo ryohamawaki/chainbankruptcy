@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args){
+        Constants.Args.substituteArgs(args);
+
         for(int x = 0; x < Constants.Args.trial_num; x++){
             Random rand = new Random(x+1);
             double r_1 = rand.nextDouble();
@@ -27,11 +29,9 @@ public class Main {
                 market.DealMarketAssets(banks, rand);
                 market.UpdateFundamentalPrice(rand);
                 for(Bank b: banks){ b.UpdateBalanceSheet(market.getLatestMarketPrice() );}
-                // BalanceSheet.OutputBalanceSheet(banks, markets);
-                for(Bank b: banks) {
-                    //System.out.println("BS of " + b.index);
-                    //b.OutputBalanceSheet(market);
-                }
+                double var = Bank.calculate_VaR(market);
+                for(Bank b: banks) { TextFile.OutputBalanceSheet(b, var, t); }
+
                 Bank.GoEachBankrupt(banks, market);
             }
 
@@ -39,7 +39,7 @@ public class Main {
             for(Bank b: banks) { if(!b.status) { num_bankrupted += 1; } }
             numbers_rupt.add(num_bankrupted);
 
-            System.out.println(numbers_rupt.get(0));
+            TextFile.OutputStatics(numbers_rupt.get(0));
         }
     }
 }
